@@ -6,6 +6,11 @@ import AddRecordModal from "../components/AddRecordModal";
 import EmployeeManagement from "./EmployeeManagement";
 import AddressManagement from "./AddressManagement";
 import LiveMonitor from "./LiveMonitor";
+import CredentialsManagement from "./CredentialsManagement";
+import TasksManagement from "./TasksManagement";
+import SecuritySettings from "./SecuritySettings";
+import RecoveryRequestsInbox from "./RecoveryRequestsInbox";
+import WorkspacePage from "./WorkspacePage";
 import { signOut } from "../lib/auth";
 import type { UserProfile } from "../lib/auth";
 import { ThemeCtx, getT } from "../lib/theme";
@@ -14,7 +19,7 @@ import type { Theme } from "../lib/theme";
 // ── Re-export ThemeCtx so any component in the tree can consume it ────────────
 export { ThemeCtx };
 
-type NavPage = "records" | "addresses" | "employees" | "live";
+type NavPage = "records" | "addresses" | "employees" | "live" | "credentials" | "tasks" | "security" | "recovery" | "workspace";
 
 interface DashboardProps {
   onLogout: () => void;
@@ -65,6 +70,54 @@ const NAV_ITEMS: { page: NavPage; label: string; icon: React.ReactNode }[] = [
           stroke="currentColor" strokeWidth="1.5" />
         <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "credentials", label: "Credentials",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "tasks", label: "Tasks",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M9 11l3 3L22 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "security", label: "Security",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5 4.5-1.35 8-6.25 8-11.5V6L12 2z"
+          stroke="currentColor" strokeWidth="1.5" />
+        <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "recovery", label: "Recovery Requests",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.78 1 6.45 2.65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <polyline points="21 3 21 9 15 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "workspace", label: "Workspace",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="9" y1="4" x2="9" y2="9" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     ),
   },
@@ -159,10 +212,15 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
   async function handleLogout() { await signOut(); onLogout(); }
 
   const pageLabels: Record<NavPage, { title: string; subtitle: string }> = {
-    records:   { title: "IP Address",   subtitle: "Manage IP address entries. Save first, then Check to validate Unique IDs." },
-    addresses: { title: "Proxy",        subtitle: "Bulk import, select ranges, and assign proxy IPs to employees."          },
-    employees: { title: "Employees",    subtitle: "Create, manage, revoke and delete employee accounts."                   },
-    live:      { title: "Live Monitor", subtitle: "Real-time view of active employee screen-share sessions."               },
+    records:     { title: "IP Address",   subtitle: "Manage IP address entries. Save first, then Check to validate Unique IDs." },
+    addresses:   { title: "Proxy",        subtitle: "Bulk import, select ranges, and assign proxy IPs to employees."          },
+    employees:   { title: "Employees",    subtitle: "Create, manage, revoke and delete employee accounts."                   },
+    live:        { title: "Live Monitor", subtitle: "Real-time view of active employee screen-share sessions."               },
+    credentials: { title: "Credentials",  subtitle: "Store platform credentials and send them to any employee."              },
+    tasks:       { title: "Tasks",        subtitle: "Compose tasks once and assign them to one or more employees."           },
+    security:    { title: "Security",     subtitle: "Manage two-factor authentication and recovery codes."                  },
+    recovery:    { title: "Recovery",     subtitle: "Review and approve emergency account-recovery requests."                },
+    workspace:   { title: "Workspace",    subtitle: "Your private space — notes and an encrypted vault only you can read."  },
   };
 
   const initials = (profile.full_name || profile.email)[0].toUpperCase();
@@ -543,6 +601,31 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {page === "live" && (
             <div style={{ animation: "fadeUp 0.3s ease both" }}>
               <LiveMonitor />
+            </div>
+          )}
+          {page === "credentials" && (
+            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+              <CredentialsManagement />
+            </div>
+          )}
+          {page === "tasks" && (
+            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+              <TasksManagement />
+            </div>
+          )}
+          {page === "security" && (
+            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+              <SecuritySettings />
+            </div>
+          )}
+          {page === "recovery" && (
+            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+              <RecoveryRequestsInbox />
+            </div>
+          )}
+          {page === "workspace" && (
+            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+              <WorkspacePage />
             </div>
           )}
         </div>

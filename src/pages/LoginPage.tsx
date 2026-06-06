@@ -1,15 +1,25 @@
 // File: src/pages/LoginPage.tsx
 
 import { useState } from "react";
-import { signIn } from "../lib/auth";
+import { signIn, signOut } from "../lib/auth";
+import {
+  challengeAndVerify, hasVerifiedMfaFactor, getAal,
+  logLoginEvent, checkLoginRateLimit,
+} from "../lib/mfa";
 
 interface LoginPageProps {
-  onLogin?: () => void;
+  onLogin?:               () => void;
+  onForgotPassword?:      () => void;
+  onEmergencyRecovery?:   () => void;
 }
 
-export default function LoginPage({ onLogin }: LoginPageProps) {
+type Stage = "credentials" | "mfa";
+
+export default function LoginPage({ onLogin, onForgotPassword, onEmergencyRecovery }: LoginPageProps) {
+  const [stage,    setStage]    = useState<Stage>("credentials");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
+  const [code,     setCode]     = useState("");
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
   const [focused,  setFocused]  = useState<"email" | "password" | null>(null);
@@ -18,14 +28,58 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    // Rate-limit check
+    const rl = await checkLoginRateLimit(email);
+    if (!rl.ok) {
+      setError(rl.error || "Too many failed attempts. Try again later.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await signIn(email, password);
+      await logLoginEvent(email, "password_success");
+
+      // Check AAL — if next level is aal2, we need MFA challenge before completing login
+      const aal = await getAal();
+      const hasFactor = await hasVerifiedMfaFactor();
+      if (aal.next === "aal2" || hasFactor) {
+        setStage("mfa");
+        setLoading(false);
+        return;
+      }
+
+      // No MFA enrolled yet — let user in (they should enroll in Security Settings)
       onLogin?.();
     } catch (err: unknown) {
+      await logLoginEvent(email, "password_fail");
       setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
       setLoading(false);
     }
+  }
+
+  async function handleMfa(e: React.FormEvent) {
+    e.preventDefault();
+    if (code.trim().length !== 6) { setError("Enter the 6-digit code from your authenticator."); return; }
+    setError("");
+    setLoading(true);
+    try {
+      await challengeAndVerify(code.trim());
+      await logLoginEvent(email, "mfa_success");
+      onLogin?.();
+    } catch (err: unknown) {
+      await logLoginEvent(email, "mfa_fail");
+      setError(err instanceof Error ? err.message : "Invalid code. Try again.");
+      setLoading(false);
+    }
+  }
+
+  async function handleBack() {
+    // User wants to start over — sign out the partial aal1 session
+    await signOut();
+    setStage("credentials");
+    setCode(""); setError("");
   }
 
   return (
@@ -64,11 +118,16 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
         {/* Heading */}
         <div style={S.headingGroup}>
-          <h1 style={S.heading}>Welcome back</h1>
-          <p style={S.subheading}>Sign in to access your workspace</p>
+          <h1 style={S.heading}>{stage === "mfa" ? "Verify it's you" : "Welcome back"}</h1>
+          <p style={S.subheading}>
+            {stage === "mfa"
+              ? "Enter the 6-digit code from your authenticator app"
+              : "Sign in to access your workspace"}
+          </p>
         </div>
 
-        {/* Form */}
+        {/* Form — credentials stage */}
+        {stage === "credentials" && (
         <form onSubmit={handleSubmit} style={S.form}>
 
           {/* Email */}
@@ -171,12 +230,107 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               </span>
             )}
           </button>
+
+          {/* Help links — credentials stage */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
+            <button
+              type="button"
+              onClick={() => onForgotPassword?.()}
+              style={{
+                background: "none", border: "none",
+                color: "rgba(165,168,255,0.85)", fontSize: 12,
+                cursor: "pointer", fontFamily: "inherit", padding: 4,
+                textAlign: "center",
+              }}
+            >
+              Forgot password?
+            </button>
+            <button
+              type="button"
+              onClick={() => onEmergencyRecovery?.()}
+              style={{
+                background: "none", border: "none",
+                color: "rgba(245,158,11,0.8)", fontSize: 11.5,
+                cursor: "pointer", fontFamily: "inherit", padding: 4,
+                textAlign: "center",
+              }}
+            >
+              I lost my authenticator device
+            </button>
+          </div>
         </form>
+        )}
+
+        {/* Form — MFA stage */}
+        {stage === "mfa" && (
+        <form onSubmit={handleMfa} style={S.form}>
+          <div style={S.fieldGroup}>
+            <label style={S.label}>Authenticator code</label>
+            <div style={S.inputWrapper}>
+              <span style={S.inputIcon}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="12" cy="16" r="1" fill="currentColor" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </span>
+              <input
+                style={{ ...S.input, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 6, textAlign: "center", fontSize: 16 }}
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                autoFocus
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="••••••"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div style={S.errorBox}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button type="submit" disabled={loading || code.length !== 6}
+            style={loading || code.length !== 6 ? S.btnLoading : S.btn}>
+            {loading ? "Verifying…" : "Verify & Continue"}
+          </button>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
+            <button type="button" onClick={handleBack}
+              style={{
+                background: "none", border: "none",
+                color: "rgba(136,146,176,0.7)", fontSize: 11.5,
+                cursor: "pointer", fontFamily: "inherit", padding: 4,
+                textAlign: "center",
+              }}>
+              ← Use a different account
+            </button>
+            <button type="button" onClick={() => onForgotPassword?.()}
+              style={{
+                background: "none", border: "none",
+                color: "rgba(245,158,11,0.8)", fontSize: 11.5,
+                cursor: "pointer", fontFamily: "inherit", padding: 4,
+                textAlign: "center",
+              }}>
+              Use a recovery code instead
+            </button>
+          </div>
+        </form>
+        )}
 
         {/* Footer */}
         <div style={S.footer}>
           <div style={S.footerDot} />
-          <span>Secure enterprise login</span>
+          <span>{stage === "mfa" ? "Two-factor authentication required" : "Secure enterprise login"}</span>
         </div>
       </div>
     </div>

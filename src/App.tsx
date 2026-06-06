@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import PasswordResetPage from "./pages/PasswordResetPage";
+import { EmergencyRecoveryRequest, EmergencyRecoveryClaim } from "./pages/EmergencyRecoveryPages";
 import { OverlayGuide } from "./components/OverlayGuide";
 
 import {
@@ -12,6 +14,7 @@ import {
   signOut,
   pingLastActive,
 } from "./lib/auth";
+import { getAal, hasVerifiedMfaFactor } from "./lib/mfa";
 
 import type { UserProfile } from "./lib/auth";
 import { supabase } from "./lib/supabase";
@@ -21,11 +24,11 @@ type AppState =
   | "login"
   | "admin"
   | "employee"
-  | "revoked";
+  | "revoked"
+  | "password_reset"
+  | "emergency_request"
+  | "emergency_claim";
 
-// ─── Overlay config — edit here to fine-tune spotlight ───────────────────────
-// If #main-panel is found via selector, live DOM measurement is used.
-// Otherwise falls back to FALLBACK_RECT (screenshot-estimated dimensions).
 const OVERLAY_CONFIG = {
   targetSelector: "#main-panel",
   branding: "7dotitsolutions",
@@ -33,23 +36,32 @@ const OVERLAY_CONFIG = {
   borderRadius: 20,
   overlayOpacity: 0.84,
   overlayBlur: 4,
-  // Fallback rect if #main-panel selector doesn't resolve
-  // Based on screenshot: centered card, ~420px wide, ~490px tall
-  fallbackRect: {
-    top: 0,   // computed dynamically below
-    left: 0,  // computed dynamically below
-    width: 420,
-    height: 490,
-  },
+  fallbackRect: { top: 0, left: 0, width: 420, height: 490 },
 } as const;
+
+// ── Detect ?recovery_token=... from URL ────────────────────────────────────
+function readRecoveryToken(): string | null {
+  try {
+    const url = new URL(window.location.href);
+    const t = url.searchParams.get("recovery_token");
+    return t && t.length >= 32 ? t : null;
+  } catch { return null; }
+}
+
+function clearRecoveryToken() {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("recovery_token");
+    window.history.replaceState({}, "", url.toString());
+  } catch { /* silent */ }
+}
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>("loading");
   const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  // ── Overlay visibility: shown on login screen only ────────────────────────
-  // Set showOverlay to false to disable globally, or true to always show on login
-  const [showOverlay, setShowOverlay] = useState(true);
+  const [recoveryToken] = useState<string | null>(readRecoveryToken());
+  // Login overlay/blur disabled — user wants a clean direct login screen
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const heartbeatRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const realtimeRef   = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -58,8 +70,30 @@ export default function App() {
   async function bootstrap() {
     try {
       setAppState("loading");
+
+      // Recovery token in URL takes priority — show claim page (signed-out flow)
+      if (recoveryToken) {
+        // Make sure we're signed out before claim
+        await signOut();
+        setAppState("emergency_claim");
+        return;
+      }
+
       const session = await getSession();
       if (!session?.user) { setAppState("login"); return; }
+
+      // CRITICAL: enforce MFA. If user has a verified factor and current AAL is
+      // aal1 (not yet elevated this session), force them back to login to verify.
+      try {
+        const aal = await getAal();
+        const hasFactor = await hasVerifiedMfaFactor();
+        if (hasFactor && aal.current !== "aal2") {
+          // Block dashboard access — re-display login (MFA stage will trigger after re-entry)
+          await signOut();
+          setAppState("login");
+          return;
+        }
+      } catch { /* if MFA API errors, proceed cautiously to profile load */ }
 
       let prof = await getProfile();
       if (!prof) {
@@ -89,7 +123,6 @@ export default function App() {
 
   function subscribeToProfile(userId: string) {
     if (realtimeRef.current) supabase.removeChannel(realtimeRef.current);
-
     const channel = supabase
       .channel(`profile-${userId}`)
       .on("postgres_changes", {
@@ -106,7 +139,6 @@ export default function App() {
         }
       })
       .subscribe();
-
     realtimeRef.current = channel;
   }
 
@@ -117,10 +149,16 @@ export default function App() {
         appStateRef.current = "login";
         setProfile(null);
         setAppState("login");
-        setShowOverlay(true);
+        setShowOverlay(false);
       }
       if (event === "SIGNED_IN") {
-        // Token refresh also fires SIGNED_IN — skip bootstrap if already authenticated
+        // LoginPage drives the multi-step flow (credentials → MFA → onLogin).
+        // If we're still on the login screen, do NOT bootstrap — that would
+        // race the MFA stage and bounce the user out (the bootstrap MFA guard
+        // would see aal1 + factor and sign them straight back to login).
+        // LoginPage explicitly calls onLogin() (which triggers bootstrap) after
+        // MFA verification is complete.
+        if (appStateRef.current === "login") return;
         if (appStateRef.current !== "admin" && appStateRef.current !== "employee") {
           bootstrap();
         }
@@ -131,6 +169,7 @@ export default function App() {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current);
       if (realtimeRef.current) supabase.removeChannel(realtimeRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleLogout() {
@@ -139,14 +178,10 @@ export default function App() {
     await signOut();
     setProfile(null);
     setAppState("login");
-    setShowOverlay(true); // Re-show overlay on logout
+    setShowOverlay(false);
   }
 
-  // ── Determine if overlay should render ────────────────────────────────────
-  // Only show on login screen, and only if showOverlay is true
   const overlayActive = showOverlay && appState === "login";
-
-  // ── Fallback rect (centered in current viewport) ──────────────────────────
   const fallbackRect = {
     ...OVERLAY_CONFIG.fallbackRect,
     top: (window.innerHeight - OVERLAY_CONFIG.fallbackRect.height) / 2,
@@ -155,23 +190,42 @@ export default function App() {
 
   return (
     <>
-      {/* ── App screens ─────────────────────────────────────────────── */}
       {appState === "loading" && <Splash />}
       {appState === "revoked" && <RevokedScreen />}
-      {appState === "login" && <LoginPage />}
+
+      {appState === "login" && (
+        <LoginPage
+          onLogin={() => bootstrap()}
+          onForgotPassword={() => setAppState("password_reset")}
+          onEmergencyRecovery={() => setAppState("emergency_request")}
+        />
+      )}
+
+      {appState === "password_reset" && (
+        <PasswordResetPage
+          onBack={() => setAppState("login")}
+          onDone={() => setAppState("login")}
+        />
+      )}
+
+      {appState === "emergency_request" && (
+        <EmergencyRecoveryRequest onBack={() => setAppState("login")} />
+      )}
+
+      {appState === "emergency_claim" && recoveryToken && (
+        <EmergencyRecoveryClaim
+          token={recoveryToken}
+          onDone={() => { clearRecoveryToken(); setAppState("login"); }}
+        />
+      )}
+
       {appState === "admin" && profile && (
         <Dashboard onLogout={handleLogout} profile={profile} />
       )}
       {appState === "employee" && profile && (
         <EmployeeDashboard onLogout={handleLogout} profile={profile} />
       )}
-      {appState !== "loading" && appState !== "login" &&
-       appState !== "admin" && appState !== "employee" &&
-       appState !== "revoked" && (
-        <Splash error="Unexpected state. Please refresh." />
-      )}
 
-      {/* ── Global Overlay Guide — mounted above everything via portal ── */}
       <OverlayGuide
         targetSelector={OVERLAY_CONFIG.targetSelector}
         rect={fallbackRect}
@@ -198,31 +252,19 @@ export default function App() {
   );
 }
 
-/* ── Cinematic Splash ─────────────────────────────────────────────────────── */
 function Splash({ error }: { error?: string }) {
   return (
     <div style={{
-      minHeight: "100vh",
-      background: "#05060d",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 20,
-      position: "relative",
-      overflow: "hidden",
+      minHeight: "100vh", background: "#05060d",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      flexDirection: "column", gap: 20, position: "relative", overflow: "hidden",
     }}>
-      {/* Ambient orbs */}
       <div style={{
         position: "absolute", top: "30%", left: "50%",
-        width: 400, height: 400,
-        transform: "translate(-50%, -50%)",
+        width: 400, height: 400, transform: "translate(-50%, -50%)",
         background: "radial-gradient(circle, rgba(124,108,248,0.08) 0%, transparent 70%)",
-        borderRadius: "50%",
-        pointerEvents: "none",
+        borderRadius: "50%", pointerEvents: "none",
       }} />
-
-      {/* Logo mark */}
       <div style={{
         width: 56, height: 56, borderRadius: 16,
         background: "linear-gradient(135deg, rgba(124,108,248,0.2) 0%, rgba(124,108,248,0.05) 100%)",
@@ -239,7 +281,6 @@ function Splash({ error }: { error?: string }) {
             strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-
       {!error && (
         <>
           <div style={{
@@ -249,39 +290,29 @@ function Splash({ error }: { error?: string }) {
             borderRadius: "50%",
             animation: "spin 0.8s linear infinite",
           }} />
-          <span style={{
-            color: "rgba(136,146,176,0.6)",
-            fontSize: 12, letterSpacing: 0.5,
-          }}>
+          <span style={{ color: "rgba(136,146,176,0.6)", fontSize: 12, letterSpacing: 0.5 }}>
             Authenticating…
           </span>
         </>
       )}
-
       {error && (
         <div style={{
-          background: "rgba(244,63,94,0.06)",
-          border: "1px solid rgba(244,63,94,0.2)",
+          background: "rgba(244,63,94,0.06)", border: "1px solid rgba(244,63,94,0.2)",
           borderRadius: 10, padding: "12px 20px",
           color: "rgba(244,63,94,0.9)", fontSize: 13,
           textAlign: "center", maxWidth: 380,
-        }}>
-          {error}
-        </div>
+        }}>{error}</div>
       )}
     </div>
   );
 }
 
-/* ── Revoked Screen ─────────────────────────────────────────────────────── */
 function RevokedScreen() {
   return (
     <div style={{
-      minHeight: "100vh",
-      background: "#05060d",
+      minHeight: "100vh", background: "#05060d",
       display: "flex", alignItems: "center", justifyContent: "center",
-      flexDirection: "column", gap: 16,
-      position: "relative", overflow: "hidden",
+      flexDirection: "column", gap: 16, position: "relative", overflow: "hidden",
     }}>
       <div style={{
         position: "absolute", top: "30%", left: "50%",

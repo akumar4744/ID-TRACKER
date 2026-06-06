@@ -4,6 +4,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useTheme } from "../lib/theme";
+import { getProfile } from "../lib/auth";
+import type { UserProfile } from "../lib/auth";
 
 interface Employee {
   id:          string;
@@ -14,6 +16,7 @@ interface Employee {
   created_at:  string;
   last_active: string | null;
   revoked_at:  string | null;
+  is_owner?:   boolean;
 }
 
 interface AddressSummary {
@@ -111,11 +114,71 @@ export default function EmployeeManagement() {
   const [taskErr,        setTaskErr]        = useState("");
   const [taskMsg,        setTaskMsg]        = useState("");
 
+  // ── Owner / ownership-transfer / admin-password state ──
+  const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
+  const isOwner = currentProfile?.is_owner === true;
+
+  // Transfer ownership flow
+  const [showTransfer,      setShowTransfer]      = useState(false);
+  const [transferPhrase,    setTransferPhrase]    = useState("");
+  const [transferring,      setTransferring]      = useState(false);
+  const [transferErr,       setTransferErr]       = useState("");
+
+  // Admin password change (owner-only)
+  const [showPwdChange,     setShowPwdChange]     = useState(false);
+  const [newAdminPwd,       setNewAdminPwd]       = useState("");
+  const [newAdminPwd2,      setNewAdminPwd2]      = useState("");
+  const [pwdChanging,       setPwdChanging]       = useState(false);
+  const [pwdErr,            setPwdErr]            = useState("");
+  const [pwdMsg,            setPwdMsg]            = useState("");
+
+  // Fetch current profile once
+  useEffect(() => {
+    let cancelled = false;
+    getProfile().then((p) => { if (!cancelled) setCurrentProfile(p); });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function handleTransferOwnership(toUserId: string) {
+    setTransferring(true); setTransferErr("");
+    const { data, error } = await supabase.rpc("transfer_ownership", {
+      p_to_user_id:          toUserId,
+      p_confirmation_phrase: transferPhrase,
+    });
+    setTransferring(false);
+    if (error) { setTransferErr(error.message); return; }
+    const result = data as { ok: boolean; error?: string };
+    if (!result.ok) { setTransferErr(result.error ?? "Transfer failed"); return; }
+    setActionMsg("Ownership transferred. You are no longer the owner.");
+    setShowTransfer(false); setTransferPhrase("");
+    await fetchEmployees();
+    // Refresh own profile to reflect demoted state
+    const p = await getProfile();
+    setCurrentProfile(p);
+  }
+
+  async function handleSetAdminPassword(targetId: string) {
+    if (newAdminPwd.length < 8) { setPwdErr("Password must be at least 8 characters."); return; }
+    if (newAdminPwd !== newAdminPwd2) { setPwdErr("Passwords do not match."); return; }
+    setPwdChanging(true); setPwdErr(""); setPwdMsg("");
+    const { data, error } = await supabase.rpc("owner_set_admin_password", {
+      p_target_id:    targetId,
+      p_new_password: newAdminPwd,
+    });
+    setPwdChanging(false);
+    if (error) { setPwdErr(error.message); return; }
+    const result = data as { ok: boolean; error?: string };
+    if (!result.ok) { setPwdErr(result.error ?? "Password change failed"); return; }
+    setPwdMsg("✓ Password updated.");
+    setNewAdminPwd(""); setNewAdminPwd2(""); setShowPwdChange(false);
+    setTimeout(() => setPwdMsg(""), 3000);
+  }
+
   async function fetchEmployees() {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, full_name, role, status, created_at, last_active, revoked_at")
+      .select("id, email, full_name, role, status, created_at, last_active, revoked_at, is_owner")
       .order("created_at", { ascending: false });
     if (!error) setEmployees((data as Employee[]) ?? []);
     setLoading(false);
@@ -438,19 +501,32 @@ export default function EmployeeManagement() {
                   </div>
 
                   {/* Status dot + label */}
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 5,
-                    background: statusBg, borderRadius: 99,
-                    padding: "3px 10px",
-                  }}>
-                    <span style={{
-                      width: 6, height: 6, borderRadius: "50%",
-                      background: statusColor, flexShrink: 0,
-                      boxShadow: `0 0 6px ${statusColor}`,
-                    }} />
-                    <span style={{ color: statusColor, fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>
-                      {emp.status}
-                    </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+                    <div style={{
+                      display: "flex", alignItems: "center", gap: 5,
+                      background: statusBg, borderRadius: 99,
+                      padding: "3px 10px",
+                    }}>
+                      <span style={{
+                        width: 6, height: 6, borderRadius: "50%",
+                        background: statusColor, flexShrink: 0,
+                        boxShadow: `0 0 6px ${statusColor}`,
+                      }} />
+                      <span style={{ color: statusColor, fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>
+                        {emp.status}
+                      </span>
+                    </div>
+                    {emp.is_owner && (
+                      <span style={{
+                        background: "linear-gradient(135deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06))",
+                        border: "1px solid rgba(245,158,11,0.4)",
+                        color: "#f59e0b", borderRadius: 99,
+                        padding: "3px 9px", fontSize: 9.5, fontWeight: 700,
+                        letterSpacing: 0.5, textTransform: "uppercase",
+                      }}>
+                        ★ Owner
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -666,6 +742,198 @@ export default function EmployeeManagement() {
               }}>
                 ⚠ This employee is revoked. You may permanently delete them. Deletion will unassign all their
                 address assignments. This action cannot be undone.
+              </div>
+            )}
+
+            {/* ══════ OWNER-ONLY ACTIONS (visible only to current owner, for admin targets) ══════ */}
+            {isOwner && emp.role === "admin" && emp.id !== currentProfile?.id && (
+              <div style={{
+                background: "linear-gradient(135deg, rgba(245,158,11,0.05), rgba(245,158,11,0.02))",
+                border: "1px solid rgba(245,158,11,0.22)",
+                borderRadius: 12, padding: "16px 18px",
+                display: "flex", flexDirection: "column", gap: 14,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 14 }}>★</span>
+                  <span style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase" }}>
+                    Owner-only Actions
+                  </span>
+                </div>
+                <span style={{ color: T.textMuted, fontSize: 11, lineHeight: 1.5 }}>
+                  Sensitive controls visible only to the current owner. These cannot be reached by other admins.
+                </span>
+
+                {/* — Transfer Ownership — */}
+                {!emp.is_owner && (
+                  <div style={{
+                    background: T.bgInput, border: `1px solid ${T.borderInput}`,
+                    borderRadius: 8, padding: "12px 14px",
+                    display: "flex", flexDirection: "column", gap: 10,
+                  }}>
+                    <span style={{ color: T.textPrimary, fontSize: 12, fontWeight: 600 }}>
+                      Transfer Ownership to {emp.full_name || emp.email}
+                    </span>
+                    {!showTransfer ? (
+                      <button
+                        onClick={() => { setShowTransfer(true); setTransferErr(""); setTransferPhrase(""); }}
+                        style={{
+                          background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)",
+                          color: "#f59e0b", borderRadius: 7, padding: "7px 14px",
+                          fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+                          alignSelf: "flex-start",
+                        }}
+                      >
+                        ★ Begin Ownership Transfer
+                      </button>
+                    ) : (
+                      <>
+                        <span style={{ color: "rgba(244,63,94,0.85)", fontSize: 11.5, lineHeight: 1.5 }}>
+                          ⚠ This will demote you from owner. The new owner gains full power including the ability
+                          to remove any other profile. Type exactly <strong>TRANSFER OWNERSHIP</strong> to confirm.
+                        </span>
+                        <input
+                          value={transferPhrase}
+                          onChange={(e) => { setTransferPhrase(e.target.value); setTransferErr(""); }}
+                          placeholder="Type confirmation phrase"
+                          autoComplete="off"
+                          style={{
+                            background: "rgba(8,10,20,0.5)", border: `1px solid ${
+                              transferPhrase === "TRANSFER OWNERSHIP"
+                                ? "rgba(16,185,129,0.4)"
+                                : transferPhrase
+                                  ? "rgba(244,63,94,0.4)"
+                                  : T.borderInput
+                            }`,
+                            color: T.textPrimary, borderRadius: 6, padding: "9px 12px",
+                            fontSize: 12, fontFamily: "'JetBrains Mono', monospace", outline: "none",
+                          }}
+                        />
+                        {transferErr && (
+                          <span style={{ color: "#f43f5e", fontSize: 11, fontWeight: 500 }}>⚠ {transferErr}</span>
+                        )}
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            onClick={() => { setShowTransfer(false); setTransferErr(""); setTransferPhrase(""); }}
+                            style={{
+                              background: T.bgBtn, border: `1px solid ${T.borderBtn}`,
+                              color: T.textSecondary, borderRadius: 7, padding: "7px 14px",
+                              fontSize: 12, cursor: "pointer", fontFamily: "inherit",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleTransferOwnership(emp.id)}
+                            disabled={transferring || transferPhrase !== "TRANSFER OWNERSHIP"}
+                            style={{
+                              background: transferring || transferPhrase !== "TRANSFER OWNERSHIP"
+                                ? "rgba(245,158,11,0.2)"
+                                : "linear-gradient(135deg, #f59e0b 0%, #b45309 100%)",
+                              border: "none",
+                              color: transferring || transferPhrase !== "TRANSFER OWNERSHIP" ? T.textMuted : "#fff",
+                              borderRadius: 7, padding: "7px 16px",
+                              fontSize: 12, fontWeight: 700,
+                              cursor: transferring || transferPhrase !== "TRANSFER OWNERSHIP" ? "not-allowed" : "pointer",
+                              fontFamily: "inherit",
+                            }}
+                          >
+                            {transferring ? "Transferring…" : "Confirm Transfer"}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* — Change Admin Password — */}
+                <div style={{
+                  background: T.bgInput, border: `1px solid ${T.borderInput}`,
+                  borderRadius: 8, padding: "12px 14px",
+                  display: "flex", flexDirection: "column", gap: 10,
+                }}>
+                  <span style={{ color: T.textPrimary, fontSize: 12, fontWeight: 600 }}>
+                    Change Password for {emp.full_name || emp.email}
+                  </span>
+                  {!showPwdChange ? (
+                    <button
+                      onClick={() => { setShowPwdChange(true); setPwdErr(""); setPwdMsg(""); setNewAdminPwd(""); setNewAdminPwd2(""); }}
+                      style={{
+                        background: "rgba(124,108,248,0.1)", border: "1px solid rgba(124,108,248,0.3)",
+                        color: "#a5a8ff", borderRadius: 7, padding: "7px 14px",
+                        fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+                        alignSelf: "flex-start",
+                      }}
+                    >
+                      🔑 Change Admin Password
+                    </button>
+                  ) : (
+                    <>
+                      <input
+                        type="password"
+                        value={newAdminPwd}
+                        onChange={(e) => { setNewAdminPwd(e.target.value); setPwdErr(""); }}
+                        placeholder="New password (min 8 chars)"
+                        autoComplete="new-password"
+                        style={{
+                          background: "rgba(8,10,20,0.5)", border: `1px solid ${T.borderInput}`,
+                          color: T.textPrimary, borderRadius: 6, padding: "9px 12px",
+                          fontSize: 12, fontFamily: "inherit", outline: "none",
+                        }}
+                      />
+                      <input
+                        type="password"
+                        value={newAdminPwd2}
+                        onChange={(e) => { setNewAdminPwd2(e.target.value); setPwdErr(""); }}
+                        placeholder="Confirm new password"
+                        autoComplete="new-password"
+                        style={{
+                          background: "rgba(8,10,20,0.5)", border: `1px solid ${
+                            newAdminPwd && newAdminPwd2 && newAdminPwd !== newAdminPwd2
+                              ? "rgba(244,63,94,0.4)"
+                              : T.borderInput
+                          }`,
+                          color: T.textPrimary, borderRadius: 6, padding: "9px 12px",
+                          fontSize: 12, fontFamily: "inherit", outline: "none",
+                        }}
+                      />
+                      {pwdErr && (
+                        <span style={{ color: "#f43f5e", fontSize: 11, fontWeight: 500 }}>⚠ {pwdErr}</span>
+                      )}
+                      {pwdMsg && (
+                        <span style={{ color: "#10b981", fontSize: 11, fontWeight: 500 }}>{pwdMsg}</span>
+                      )}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => { setShowPwdChange(false); setPwdErr(""); setNewAdminPwd(""); setNewAdminPwd2(""); }}
+                          style={{
+                            background: T.bgBtn, border: `1px solid ${T.borderBtn}`,
+                            color: T.textSecondary, borderRadius: 7, padding: "7px 14px",
+                            fontSize: 12, cursor: "pointer", fontFamily: "inherit",
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => handleSetAdminPassword(emp.id)}
+                          disabled={pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2}
+                          style={{
+                            background: pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2
+                              ? "rgba(124,108,248,0.2)"
+                              : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                            border: "none",
+                            color: pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2 ? T.textMuted : "#fff",
+                            borderRadius: 7, padding: "7px 16px",
+                            fontSize: 12, fontWeight: 700,
+                            cursor: pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2 ? "not-allowed" : "pointer",
+                            fontFamily: "inherit",
+                          }}
+                        >
+                          {pwdChanging ? "Updating…" : "Update Password"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>

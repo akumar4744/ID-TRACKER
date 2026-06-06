@@ -3,7 +3,7 @@
 // ADDED: Frontend-only hide/restore for record rows. Never touches DB.
 // All other logic unchanged.
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import { supabase } from "../lib/supabase";
 import { useValidation, ADMIN_ASSIGNMENT_ID } from "../hooks/useValidation";
 import { useTheme } from "../lib/theme";
@@ -833,7 +833,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                   : (hl.row.background as string | undefined) ?? "transparent";
 
                 return (
-                  <tr key={r.id} style={{ display: "contents" }}>
+                  <Fragment key={r.id}>
                     <tr
                       style={{
                         ...S.tr,
@@ -976,7 +976,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                         </td>
                       </tr>
                     )}
-                  </tr>
+                  </Fragment>
                 );
               })}
             </tbody>

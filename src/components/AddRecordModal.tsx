@@ -6,7 +6,14 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useValidation, ADMIN_ASSIGNMENT_ID } from "../hooks/useValidation";
 
-const STATUS_OPTIONS = ["Pending", "Active", "Blocked", "Expired", "Verified"];
+// Category presets — admin can pick one of these or type a custom value
+const CATEGORY_OPTIONS = [
+  "Healthcare",
+  "Skincare",
+  "Yogafy",
+  "Listify",
+  "Bizzlists.com",
+];
 
 interface AddRecordModalProps {
   onClose: () => void;
@@ -121,15 +128,22 @@ function CooldownTimer({ endsAt }: { endsAt: string }) {
 }
 
 export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps) {
-  const [address,     setAddress]     = useState("");
+  // Category — dropdown preset + free-text input (admin can pick or type)
+  const [categoryPreset, setCategoryPreset] = useState("");
+  const [categoryCustom, setCategoryCustom] = useState("");
+  // SmartLink — paste URL/text
+  const [smartlink,      setSmartlink]      = useState("");
+  // Existing identity fields
   const [uniqueId,    setUniqueId]    = useState("");
   const [fingerprint, setFingerprint] = useState("");
-  const [status,      setStatus]      = useState("Pending");
   const [saving,      setSaving]      = useState(false);
   const [error,       setError]       = useState("");
   const [confirmed,   setConfirmed]   = useState(false);
   const [confirming,  setConfirming]  = useState(false);
   const [confirmMsg,  setConfirmMsg]  = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Effective category value — custom text wins if set, otherwise the preset selection
+  const categoryValue = (categoryCustom.trim() || categoryPreset).trim();
 
   const confirmingRef = useRef(false);
   const validation    = useValidation();
@@ -213,18 +227,24 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
   }
 
   async function handleSave() {
-    if (!address.trim() || !uniqueId.trim() || !fingerprint.trim()) {
-      setError("Address, Unique ID, and Fingerprint are all required.");
+    if (!categoryValue || !uniqueId.trim() || !fingerprint.trim()) {
+      setError("Category, Unique ID, and Fingerprint are all required.");
       return;
     }
     setSaving(true);
     setError("");
     try {
+      // Backward compatibility: the existing `records.address` column is NOT NULL,
+      // so we mirror the category value into it. The new `category` and `smartlink`
+      // columns carry the new explicit fields. RecordsTable continues to render
+      // `address` for the table column unchanged.
       const { error: recErr } = await supabase.from("records").insert({
-        address:      address.trim(),
+        address:      categoryValue,
+        category:     categoryValue,
+        smartlink:    smartlink.trim() || null,
         unique_id:    uniqueId.trim(),
         fingerprint:  fingerprint.trim(),
-        status,
+        status:       "Pending",
         check_status: confirmed ? "valid" : null,
         check_result: null,
       });
@@ -264,16 +284,38 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
 
         <div style={M.body}>
 
+          {/* ── Category (dropdown preset OR custom text) ── */}
           <div style={M.row}>
             <div style={M.field}>
-              <label style={M.label}>Address Target</label>
-              <div style={M.inputRow}>
+              <label style={M.label}>
+                Category
+                {categoryValue && (
+                  <span style={{ color: "#10b981", marginLeft: 8, fontSize: 9, fontWeight: 700 }}>✓</span>
+                )}
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <select
+                  style={{ ...M.input, paddingRight: 32 }}
+                  value={categoryPreset}
+                  onChange={(e) => { setCategoryPreset(e.target.value); setError(""); }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
+                    e.currentTarget.style.boxShadow = "0 0 8px rgba(124,108,248,0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <option value="">— Select a category —</option>
+                  {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
                 <input
                   style={M.input}
-                  value={address}
-                  onChange={(e) => { setAddress(e.target.value); setError(""); }}
+                  value={categoryCustom}
+                  onChange={(e) => { setCategoryCustom(e.target.value); setError(""); }}
                   onKeyDown={handleKeyDown}
-                  placeholder="e.g. 123 Main St"
+                  placeholder="…or type a custom category"
                   autoFocus
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
@@ -284,27 +326,28 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 />
-                <CopyButton value={address} label="address" />
               </div>
             </div>
             <div style={M.field}>
-              <label style={M.label}>Bootstrap Status</label>
-              <select
-                style={{ ...M.input, paddingRight: 32 }}
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
-                  e.currentTarget.style.boxShadow = "0 0 8px rgba(124,108,248,0.15)";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <label style={M.label}>SmartLink</label>
+              <div style={M.inputRow}>
+                <input
+                  style={M.input}
+                  value={smartlink}
+                  onChange={(e) => { setSmartlink(e.target.value); setError(""); }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Paste the smartlink URL or identifier"
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
+                    e.currentTarget.style.boxShadow = "0 0 8px rgba(124,108,248,0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                />
+                {smartlink && <CopyButton value={smartlink} label="smartlink" />}
+              </div>
             </div>
           </div>
 

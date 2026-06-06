@@ -1,12 +1,20 @@
 {
-  "name": "admin-portal",
+  "name": "dot-portal",
   "private": true,
   "version": "0.1.0",
+  "description": "DoT — Secure AdsPower workstation shell",
+  "author": "DoT",
+  "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:dev": "concurrently -k -n VITE,ELECTRON -c blue,magenta \"npm run dev\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electron .\"",
+    "electron:start": "electron .",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "electron:pack": "npm run build && electron-builder --dir"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -19,7 +27,60 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
     "typescript": "^5.3.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.dot.portal",
+    "productName": "DoT",
+    "copyright": "Copyright © DoT",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "asar": true,
+    "compression": "maximum",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "DoT-Setup-${version}.${ext}",
+      "executableName": "DoT"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DoT",
+      "uninstallDisplayName": "DoT Workstation",
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Office"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.productivity"
+    }
   }
 }

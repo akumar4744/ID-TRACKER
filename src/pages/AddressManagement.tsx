@@ -535,22 +535,31 @@ export default function AddressManagement() {
 
     // Save category to the just-created/updated assignments
     if (assignCategory.trim()) {
+      const trimmed = assignCategory.trim();
+      // 1. Per-assignment category (used by Work View cards in admin + employee dashboard)
       await supabase
         .from("address_assignments")
-        .update({ category: assignCategory.trim() })
+        .update({ category: trimmed })
         .eq("employee_id", assignTo)
         .in("address_id", selectedIds);
+      // 2. Per-address notes (used by the proxy table "Category" column)
+      //    Mirrors the value so the table display stays in sync with the assignment.
+      await supabase
+        .from("addresses")
+        .update({ notes: trimmed })
+        .in("id", selectedIds);
     }
 
     setAssigning(false);
     setAssignMsg(`✅ ${result.assigned} address${result.assigned !== 1 ? "es" : ""} assigned.`);
     setSelected(new Set()); setShowAssign(false); setAssignTo(""); setAssignCategory("");
-    // In virtual mode refresh allRows so assignment status updates immediately
+    // In virtual mode refresh allRows so assignment + category update immediately.
+    // Use the `selectedIds` snapshot — `selected` was cleared above.
     if (virtualMode) {
       const freshRes = await supabase
         .from("addresses_with_employee")
         .select("*")
-        .in("id", Array.from(selected));
+        .in("id", selectedIds);
       if (freshRes.data) {
         const updatedMap = new Map((freshRes.data as AddressRow[]).map((r) => [r.id, r]));
         setAllRows((prev) => prev.map((r) => updatedMap.get(r.id) ?? r));
