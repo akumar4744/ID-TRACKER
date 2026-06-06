@@ -1,7 +1,6 @@
 // src/components/CinematicIntro.tsx
-// Cinematic 3D intro scene for 7dotIT Solutions.
-// 7 glowing crimson orbs fly in from deep space and assemble into the company
-// logo cluster, then the brand name reveals. Plays once per session.
+// Cinematic 3D intro for 7dotIT Solutions.
+// Uses meshBasicMaterial (no lighting dependency) so orbs are always bright.
 
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
@@ -9,36 +8,30 @@ import * as THREE from "three";
 import { motion } from "framer-motion";
 
 // ── Timing (seconds) ──────────────────────────────────────────────────────────
-const PHASE1_END   = 1.8;  // all dots settled
-const TEXT_FADE_IN = 2.0;  // text starts appearing
-const PHASE2_END   = 3.6;  // fade-out begins
-const TOTAL_END    = 4.6;  // call onDone
+const PHASE1_END = 1.8;   // all orbs settled
+const TEXT_IN    = 2.0;   // brand text starts appearing
+const FADE_START = 3.6;   // fade-to-black begins
+const TOTAL      = 4.6;   // call onDone
 
-// ── Colors ────────────────────────────────────────────────────────────────────
-const DOT_CORE    = new THREE.Color("#c62222");
-const DOT_EMIT    = new THREE.Color("#8B1A1A");
-const GLOW_INNER  = new THREE.Color("#6B0000");
-const GLOW_OUTER  = new THREE.Color("#2d0000");
-
-// ── The 7 orb configs ─────────────────────────────────────────────────────────
+// ── Orb configs ───────────────────────────────────────────────────────────────
 interface OrbCfg {
-  target: THREE.Vector3;
-  start:  THREE.Vector3;
+  target: [number, number, number];
+  start:  [number, number, number];
   r:      number;
-  arrive: number; // seconds into scene
+  arrive: number;
 }
 
 const ORBS: OrbCfg[] = [
-  { target: new THREE.Vector3( 0.0,  0.0,  0.0 ), start: new THREE.Vector3(-13,  9,  -7), r: 0.50, arrive: 0.75 },
-  { target: new THREE.Vector3( 1.85, 0.85, 0.3 ), start: new THREE.Vector3( 11, -6,   9), r: 0.32, arrive: 0.95 },
-  { target: new THREE.Vector3( 2.9, -0.4, -0.2 ), start: new THREE.Vector3(  7, 13,  -5), r: 0.22, arrive: 1.15 },
-  { target: new THREE.Vector3(-0.8,  1.25, 0.4 ), start: new THREE.Vector3( -9,-11,   6), r: 0.28, arrive: 0.85 },
-  { target: new THREE.Vector3(-1.7, -0.6,  0.5 ), start: new THREE.Vector3(  5,  8, -13), r: 0.18, arrive: 1.25 },
-  { target: new THREE.Vector3( 0.4, -1.6, -0.4 ), start: new THREE.Vector3( -6, -9,  10), r: 0.20, arrive: 1.10 },
-  { target: new THREE.Vector3( 2.1, -1.3,  0.6 ), start: new THREE.Vector3( 10,  4,   7), r: 0.16, arrive: 1.35 },
+  { target: [ 0.0,  0.0,  0.0 ], start: [-13,  9, -7 ], r: 0.70, arrive: 0.75 },
+  { target: [ 2.4,  1.1,  0.4 ], start: [ 11, -6,  9 ], r: 0.45, arrive: 0.95 },
+  { target: [ 3.8, -0.5, -0.3 ], start: [  7, 13, -5 ], r: 0.32, arrive: 1.15 },
+  { target: [-1.1,  1.7,  0.5 ], start: [ -9,-11,  6 ], r: 0.38, arrive: 0.85 },
+  { target: [-2.2, -0.8,  0.7 ], start: [  5,  8,-13 ], r: 0.26, arrive: 1.25 },
+  { target: [ 0.5, -2.1, -0.5 ], start: [ -6, -9, 10 ], r: 0.28, arrive: 1.10 },
+  { target: [ 2.8, -1.7,  0.8 ], start: [ 10,  4,  7 ], r: 0.22, arrive: 1.35 },
 ];
 
-// ── Easing ────────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function easeOutExpo(t: number): number {
   return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
@@ -51,24 +44,23 @@ function Stars() {
   const ref = useRef<THREE.Points>(null!);
 
   const geo = useMemo(() => {
-    const count = 900;
-    const pos   = new Float32Array(count * 3);
-    const col   = new Float32Array(count * 3);
+    const COUNT = 1400;
+    const pos   = new Float32Array(COUNT * 3);
+    const col   = new Float32Array(COUNT * 3);
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < COUNT; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi   = Math.acos(2 * Math.random() - 1);
-      const r     = 22 + Math.random() * 28;
-
+      const r     = 25 + Math.random() * 30;
       pos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i * 3 + 2] = r * Math.cos(phi);
 
-      const b = 0.45 + Math.random() * 0.55;
-      const red = Math.random() < 0.35;
+      const b   = 0.55 + Math.random() * 0.45;
+      const red = Math.random() < 0.3;
       col[i * 3]     = b;
-      col[i * 3 + 1] = red ? b * 0.4 : b * 0.85;
-      col[i * 3 + 2] = red ? b * 0.4 : b * 0.85;
+      col[i * 3 + 1] = red ? b * 0.25 : b * 0.82;
+      col[i * 3 + 2] = red ? b * 0.25 : b * 0.82;
     }
 
     const g = new THREE.BufferGeometry();
@@ -78,98 +70,105 @@ function Stars() {
   }, []);
 
   useFrame((_, dt) => {
-    ref.current.rotation.y += dt * 0.018;
+    ref.current.rotation.y += dt * 0.015;
     ref.current.rotation.x += dt * 0.004;
   });
 
   return (
     <points ref={ref} geometry={geo}>
       <pointsMaterial
-        size={0.055}
         vertexColors
+        size={0.065}
         sizeAttenuation
         transparent
-        opacity={0.85}
+        opacity={0.9}
         depthWrite={false}
       />
     </points>
   );
 }
 
-// ── Single orb with glow layers ───────────────────────────────────────────────
+// ── Single glowing orb ────────────────────────────────────────────────────────
 function Orb({ cfg, elapsed }: { cfg: OrbCfg; elapsed: React.MutableRefObject<number> }) {
-  const groupRef = useRef<THREE.Group>(null!);
-  const coreRef  = useRef<THREE.Mesh>(null!);
-  const curPos   = useMemo(() => cfg.start.clone(), [cfg]);
+  const groupRef  = useRef<THREE.Group>(null!);
+  const pulseRef  = useRef<THREE.Mesh>(null!);
+
+  const tgt = useMemo(() => new THREE.Vector3(...cfg.target), [cfg]);
+  const src = useMemo(() => new THREE.Vector3(...cfg.start),  [cfg]);
+  const cur = useMemo(() => src.clone(), [src]);
 
   useFrame(() => {
-    const t  = elapsed.current;
-    const p  = clamp01(t / cfg.arrive);
-    curPos.lerpVectors(cfg.start, cfg.target, easeOutExpo(p));
-    groupRef.current.position.copy(curPos);
+    const t = elapsed.current;
 
-    // pulse glow once settled
-    if (t > cfg.arrive) {
-      const pulse = Math.sin(t * 2.8 + cfg.arrive * 7) * 0.5 + 0.5;
-      const mat = coreRef.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = 1.2 + pulse * 1.2;
+    // Fly-in
+    cur.lerpVectors(src, tgt, easeOutExpo(clamp01(t / cfg.arrive)));
+    groupRef.current.position.copy(cur);
+
+    // Pulse inner glow once settled
+    if (t > cfg.arrive && pulseRef.current) {
+      const p   = (Math.sin(t * 2.6 + cfg.arrive * 4.5) + 1) * 0.5;
+      const mat = pulseRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.22 + p * 0.18;
     }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Core */}
-      <mesh ref={coreRef}>
-        <sphereGeometry args={[cfg.r, 32, 32]} />
-        <meshStandardMaterial
-          color={DOT_CORE}
-          emissive={DOT_EMIT}
-          emissiveIntensity={1.2}
-          roughness={0.15}
-          metalness={0.7}
-        />
-      </mesh>
-      {/* Inner glow halo */}
+      {/* Solid bright core */}
       <mesh>
-        <sphereGeometry args={[cfg.r * 2.2, 16, 16]} />
+        <sphereGeometry args={[cfg.r, 32, 32]} />
+        <meshBasicMaterial color="#ff3333" />
+      </mesh>
+
+      {/* Hot white-pink highlight at centre */}
+      <mesh>
+        <sphereGeometry args={[cfg.r * 0.5, 16, 16]} />
         <meshBasicMaterial
-          color={GLOW_INNER}
+          color="#ffbbbb"
           transparent
-          opacity={0.18}
+          opacity={0.75}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
-          side={THREE.BackSide}
         />
       </mesh>
-      {/* Outer glow halo */}
-      <mesh>
-        <sphereGeometry args={[cfg.r * 4.0, 16, 16]} />
+
+      {/* Inner crimson glow — pulsing */}
+      <mesh ref={pulseRef}>
+        <sphereGeometry args={[cfg.r * 2.5, 20, 20]} />
         <meshBasicMaterial
-          color={GLOW_OUTER}
+          color="#cc1111"
+          transparent
+          opacity={0.22}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Outer soft halo */}
+      <mesh>
+        <sphereGeometry args={[cfg.r * 4.8, 16, 16]} />
+        <meshBasicMaterial
+          color="#550000"
           transparent
           opacity={0.07}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
-          side={THREE.BackSide}
         />
       </mesh>
     </group>
   );
 }
 
-// ── Camera controller ─────────────────────────────────────────────────────────
+// ── Camera ────────────────────────────────────────────────────────────────────
 function CameraRig({ elapsed }: { elapsed: React.MutableRefObject<number> }) {
   useFrame(({ camera }) => {
-    const t = elapsed.current;
-
-    // Slowly zoom in as dots assemble, then gentle orbit
-    const zoomP = clamp01(t / PHASE1_END);
-    const z = 13 - easeOutExpo(zoomP) * 4.5; // 13 → 8.5
-
-    const orbit = t * 0.18;
+    const t   = elapsed.current;
+    const p   = clamp01(t / PHASE1_END);
+    const z   = 14 - easeOutExpo(p) * 5;      // pulls from z=14 → z=9
+    const orb = t * 0.16;
     camera.position.set(
-      Math.sin(orbit) * 1.8,
-      Math.cos(orbit * 0.6) * 0.9,
+      Math.sin(orb) * 1.6,
+      Math.cos(orb * 0.55) * 0.8,
       z,
     );
     camera.lookAt(0.6, 0, 0);
@@ -177,34 +176,29 @@ function CameraRig({ elapsed }: { elapsed: React.MutableRefObject<number> }) {
   return null;
 }
 
-// ── Scene ─────────────────────────────────────────────────────────────────────
+// ── Scene root ────────────────────────────────────────────────────────────────
 function Scene({ elapsed }: { elapsed: React.MutableRefObject<number> }) {
   return (
     <>
-      <fog attach="fog" args={["#050000", 14, 55]} />
-      <ambientLight intensity={0.25} color="#1a0000" />
-      <pointLight position={[0, 0, 4]}  intensity={3}   color="#ff2222" decay={2} />
-      <pointLight position={[3, 2, 2]}  intensity={1.2} color="#cc0000" decay={2} />
-      <pointLight position={[-2,-1, 3]} intensity={0.8} color="#ff4444" decay={2} />
       <Stars />
-      {ORBS.map((cfg, i) => <Orb key={i} cfg={cfg} elapsed={elapsed} />)}
+      {ORBS.map((cfg, i) => (
+        <Orb key={i} cfg={cfg} elapsed={elapsed} />
+      ))}
       <CameraRig elapsed={elapsed} />
     </>
   );
 }
 
-// ── Root component ────────────────────────────────────────────────────────────
-interface Props {
-  onDone: () => void;
-}
+// ── Main export ───────────────────────────────────────────────────────────────
+interface Props { onDone: () => void; }
 
 export default function CinematicIntro({ onDone }: Props) {
-  const elapsed       = useRef(0);
-  const startRef      = useRef(Date.now());
-  const onDoneRef     = useRef(onDone);
-  const showTextFlag  = useRef(false);
-  const fadeOutFlag   = useRef(false);
-  const doneFlag      = useRef(false);
+  const elapsed    = useRef(0);
+  const startRef   = useRef(Date.now());
+  const onDoneRef  = useRef(onDone);
+  const didText    = useRef(false);
+  const didFade    = useRef(false);
+  const didDone    = useRef(false);
 
   const [showText, setShowText] = useState(false);
   const [fadeOut,  setFadeOut]  = useState(false);
@@ -213,206 +207,182 @@ export default function CinematicIntro({ onDone }: Props) {
 
   useEffect(() => {
     let raf: number;
-
     function tick() {
       const t = (Date.now() - startRef.current) / 1000;
       elapsed.current = t;
-
-      if (t >= TEXT_FADE_IN && !showTextFlag.current) {
-        showTextFlag.current = true;
-        setShowText(true);
-      }
-      if (t >= PHASE2_END && !fadeOutFlag.current) {
-        fadeOutFlag.current = true;
-        setFadeOut(true);
-      }
-      if (t >= TOTAL_END && !doneFlag.current) {
-        doneFlag.current = true;
-        onDoneRef.current();
-        return;
-      }
-
+      if (t >= TEXT_IN    && !didText.current)  { didText.current = true;  setShowText(true); }
+      if (t >= FADE_START && !didFade.current)  { didFade.current = true;  setFadeOut(true);  }
+      if (t >= TOTAL      && !didDone.current)  { didDone.current = true;  onDoneRef.current(); return; }
       raf = requestAnimationFrame(tick);
     }
-
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, []);
 
   function skip() {
-    if (!doneFlag.current) {
-      doneFlag.current = true;
-      onDoneRef.current();
-    }
+    if (!didDone.current) { didDone.current = true; onDoneRef.current(); }
   }
 
   return (
-    <div
-      style={{
-        position:   "fixed",
-        inset:      0,
-        background: "#000",
-        zIndex:     9999,
-        overflow:   "hidden",
-        cursor:     "default",
-      }}
-    >
-      {/* 3D canvas */}
+    <div style={{
+      position:   "fixed",
+      top: 0, left: 0,
+      width:      "100vw",
+      height:     "100vh",
+      background: "#060606",
+      zIndex:     9999,
+      overflow:   "hidden",
+    }}>
+
+      {/* ── Three.js canvas ── */}
       <Canvas
-        camera={{ position: [0, 0, 13], fov: 58 }}
-        style={{ width: "100%", height: "100%" }}
-        gl={{
-          antialias:           true,
-          toneMapping:         THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.6,
-        }}
+        camera={{ position: [0, 0, 14], fov: 60 }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
       >
         <Scene elapsed={elapsed} />
       </Canvas>
 
-      {/* Vignette */}
+      {/* ── Vignette ── */}
       <div style={{
-        position:       "absolute",
-        inset:          0,
-        background:     "radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(0,0,0,0.75) 100%)",
-        pointerEvents:  "none",
+        position:      "absolute",
+        top: 0, left: 0, right: 0, bottom: 0,
+        background:    "radial-gradient(ellipse at 50% 50%, transparent 32%, rgba(0,0,0,0.78) 100%)",
+        pointerEvents: "none",
       }} />
 
-      {/* Subtle scanline texture */}
-      <div style={{
-        position:        "absolute",
-        inset:           0,
-        backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px)",
-        pointerEvents:   "none",
-      }} />
-
-      {/* Brand text overlay */}
+      {/* ── Brand text overlay ── */}
       <div style={{
         position:       "absolute",
-        inset:          0,
+        top: 0, left: 0, right: 0, bottom: 0,
         display:        "flex",
         flexDirection:  "column",
         alignItems:     "center",
         justifyContent: "center",
-        pointerEvents:  "none",
         gap:            10,
+        pointerEvents:  "none",
       }}>
-        {/* "Powered by" label */}
+
+        {/* "Powered by" */}
         <motion.div
-          initial={{ opacity: 0, y: -12 }}
+          initial={{ opacity: 0, y: -14 }}
           animate={showText ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.9, ease: "easeOut" }}
+          transition={{ duration: 0.9 }}
           style={{
-            color:         "rgba(180, 40, 40, 0.65)",
+            color:         "#cc3333",
             fontSize:      11,
             fontFamily:    "'Inter', -apple-system, sans-serif",
             letterSpacing: 7,
-            textTransform: "uppercase",
-            fontWeight:    400,
+            textTransform: "uppercase" as const,
           }}
         >
           Powered by
         </motion.div>
 
-        {/* Main logo text */}
+        {/* 7dotIT */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.88, y: 6 }}
-          animate={showText ? { opacity: 1, scale: 1, y: 0 } : {}}
-          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          initial={{ opacity: 0, scale: 0.84 }}
+          animate={showText ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
           style={{
             fontFamily:    "'Inter', -apple-system, sans-serif",
             fontWeight:    800,
-            fontSize:      60,
+            fontSize:      70,
             letterSpacing: -2,
             lineHeight:    1,
             color:         "#ffffff",
-            textShadow:    "0 0 50px rgba(180,30,30,0.9), 0 0 100px rgba(139,26,26,0.5), 0 0 160px rgba(100,10,10,0.3)",
+            textShadow:    [
+              "0 0 30px rgba(255,60,60,1)",
+              "0 0 70px rgba(220,20,20,0.75)",
+              "0 0 130px rgba(160,10,10,0.45)",
+            ].join(", "),
           }}
         >
-          7dot<span style={{ color: "#c62222" }}>IT</span>
+          7dot<span style={{ color: "#ff3333" }}>IT</span>
         </motion.div>
 
-        {/* "Solutions" subtitle */}
+        {/* Solutions */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={showText ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.85, ease: "easeOut", delay: 0.28 }}
+          transition={{ duration: 0.85, delay: 0.28 }}
           style={{
-            color:         "rgba(255,255,255,0.35)",
+            color:         "rgba(255,255,255,0.38)",
             fontSize:      13,
             fontFamily:    "'Inter', -apple-system, sans-serif",
-            letterSpacing: 5,
-            textTransform: "uppercase",
+            letterSpacing: 5.5,
+            textTransform: "uppercase" as const,
             fontWeight:    300,
           }}
         >
           Solutions
         </motion.div>
 
-        {/* Domain */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={showText ? { opacity: 1 } : {}}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.55 }}
-          style={{
-            color:         "rgba(180, 40, 40, 0.45)",
-            fontSize:      11,
-            fontFamily:    "'Inter', -apple-system, sans-serif",
-            letterSpacing: 2.5,
-            marginTop:     10,
-          }}
-        >
-          7dotit.com
-        </motion.div>
-
-        {/* Thin red divider line */}
+        {/* Red divider line */}
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
           animate={showText ? { scaleX: 1, opacity: 1 } : {}}
-          transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
+          transition={{ duration: 0.85, ease: "easeOut", delay: 0.22 }}
           style={{
-            width:           120,
+            width:           140,
             height:          1,
-            background:      "linear-gradient(90deg, transparent, #8B1A1A, transparent)",
+            background:      "linear-gradient(90deg, transparent, #ff3333 40%, #ff3333 60%, transparent)",
             transformOrigin: "center",
             marginTop:       4,
           }}
         />
+
+        {/* Domain */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={showText ? { opacity: 1 } : {}}
+          transition={{ duration: 0.8, delay: 0.55 }}
+          style={{
+            color:         "rgba(210, 55, 55, 0.5)",
+            fontSize:      11,
+            fontFamily:    "'Inter', -apple-system, sans-serif",
+            letterSpacing: 3,
+            marginTop:     4,
+          }}
+        >
+          7dotit.com
+        </motion.div>
       </div>
 
-      {/* Fade-to-black overlay */}
+      {/* ── Fade-to-black ── */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={fadeOut ? { opacity: 1 } : { opacity: 0 }}
+        animate={{ opacity: fadeOut ? 1 : 0 }}
         transition={{ duration: 1.0, ease: "easeIn" }}
         style={{
           position:      "absolute",
-          inset:         0,
+          top: 0, left: 0, right: 0, bottom: 0,
           background:    "#000",
           pointerEvents: "none",
         }}
       />
 
-      {/* Skip button */}
+      {/* ── Skip button ── */}
       <motion.button
+        type="button"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.35 }}
+        animate={{ opacity: 0.45 }}
         transition={{ delay: 1.2, duration: 0.6 }}
-        whileHover={{ opacity: 0.7 }}
+        whileHover={{ opacity: 0.85 }}
         onClick={skip}
         style={{
-          position:       "absolute",
-          bottom:         24,
-          right:          28,
-          background:     "transparent",
-          border:         "none",
-          color:          "rgba(255,255,255,0.6)",
-          fontSize:       10,
-          fontFamily:     "'Inter', sans-serif",
-          letterSpacing:  2,
-          cursor:         "pointer",
-          textTransform:  "uppercase",
-          padding:        "6px 10px",
+          position:      "absolute",
+          bottom:        24,
+          right:         28,
+          background:    "transparent",
+          border:        "1px solid rgba(255,255,255,0.18)",
+          borderRadius:  6,
+          color:         "rgba(255,255,255,0.65)",
+          fontSize:      10,
+          fontFamily:    "'Inter', sans-serif",
+          letterSpacing: 2.5,
+          cursor:        "pointer",
+          textTransform: "uppercase" as const,
+          padding:       "6px 14px",
         }}
       >
         Skip ›
