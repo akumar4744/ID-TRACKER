@@ -7,6 +7,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import PasswordResetPage from "./pages/PasswordResetPage";
 import { EmergencyRecoveryRequest, EmergencyRecoveryClaim } from "./pages/EmergencyRecoveryPages";
 import { OverlayGuide } from "./components/OverlayGuide";
+import CinematicIntro from "./components/CinematicIntro";
 
 import {
   getSession,
@@ -60,6 +61,11 @@ export default function App() {
   const [appState, setAppState] = useState<AppState>("loading");
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [recoveryToken] = useState<string | null>(readRecoveryToken());
+
+  // Show cinematic intro once per browser session
+  const [showIntro, setShowIntro] = useState<boolean>(() => {
+    try { return !sessionStorage.getItem("dot-intro-seen"); } catch { return true; }
+  });
   // Login overlay/blur disabled — user wants a clean direct login screen
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -190,6 +196,13 @@ export default function App() {
 
   return (
     <>
+      {showIntro && (
+        <CinematicIntro onDone={() => {
+          try { sessionStorage.setItem("dot-intro-seen", "1"); } catch {}
+          setShowIntro(false);
+        }} />
+      )}
+
       {appState === "loading" && <Splash />}
       {appState === "revoked" && <RevokedScreen />}
 

@@ -17,15 +17,18 @@
     "electron:pack": "npm run build && electron-builder --dir"
   },
   "dependencies": {
+    "@react-three/fiber": "^8.18.0",
     "@supabase/supabase-js": "^2.39.0",
     "framer-motion": "^12.40.0",
     "papaparse": "^5.5.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@types/three": "^0.184.1",
     "@vitejs/plugin-react": "^4.2.0",
     "concurrently": "^9.1.0",
     "cross-env": "^7.0.3",
@@ -57,7 +60,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "artifactName": "DoT-Setup-${version}.${ext}",
@@ -75,11 +80,15 @@
       "deleteAppDataOnUninstall": false
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "category": "Office"
     },
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "category": "public.app-category.productivity"
     }
   }
