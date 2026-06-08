@@ -812,7 +812,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                     style={{ cursor: "pointer", accentColor: "#7c6cf8", width: 13, height: 13 }}
                   />
                 </th>
-                {["Category", "Unique ID", "Fingerprint", "Status", "Created At", "Actions"].map(
+                {["Category", "IP Address", "Fingerprint", "Status", "Created At", "Actions"].map(
                   h => <th key={h} style={{ ...S.th, background: T.bgTableHeader, color: T.textMuted, borderBottom: `1px solid ${T.dividerSolid}` }}>{h}</th>
                 )}
               </tr>
