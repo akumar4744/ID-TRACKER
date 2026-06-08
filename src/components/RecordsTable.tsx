@@ -541,14 +541,13 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
   const [rowState,   setRowState]   = useState<Record<string, RowState>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // ── Persistent delete — saved to localStorage, survives refresh ───────────
+  // ── Frontend-only hide — saved to localStorage, survives refresh ─────────
   const [deletedIds, setDeletedIds] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem("records_deleted_ids");
       return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set<string>();
     } catch { return new Set<string>(); }
   });
-  const [showDeleted, setShowDeleted] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem("records_deleted_ids", JSON.stringify([...deletedIds])); }
@@ -588,12 +587,6 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
     setSelectedIds(new Set());
     setPendingBulkDelete(false);
     setExpandedId(prev => (prev && toDelete.has(prev)) ? null : prev);
-  }
-
-  function restoreAll() {
-    setDeletedIds(new Set());
-    setShowDeleted(false);
-    try { localStorage.removeItem("records_deleted_ids"); } catch { /* silent */ }
   }
 
   const fetchRecords = useCallback(async () => {
@@ -714,9 +707,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
   if (loading)    return <div style={{ ...S.msg, background: T.bgCard, border: `1px solid ${T.borderCard}`, color: T.textSecondary }}>Negotiating data pipeline & fetching IP addresses…</div>;
   if (fetchError) return <div style={{ ...S.errorMsg, background: T.bgCard, border: `1px solid ${T.borderCard}` }}>⚠ Handshake Error: {fetchError}</div>;
 
-  const visibleRecords = records.filter(r =>
-    showDeleted ? deletedIds.has(r.id) : !deletedIds.has(r.id)
-  );
+  const visibleRecords = records.filter(r => !deletedIds.has(r.id));
   const visibleIds        = visibleRecords.map(r => r.id);
   const allSelected       = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
   const someSelected      = selectedIds.size > 0;
@@ -729,7 +720,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
     <div style={{ display: "flex", flexDirection: "column" }}>
 
       {/* ── Toolbar ─────────────────────────────────────────────────────────── */}
-      {(deletedIds.size > 0 || showDeleted || someSelected) && (
+      {someSelected && (
         <div style={{
           display:      "flex",
           alignItems:   "center",
@@ -740,54 +731,36 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
           background:   T.bgCard,
           borderRadius: "16px 16px 0 0",
         }}>
-          {someSelected && !showDeleted && (
+          <span style={{ color: "#7c6cf8", fontSize: 11, fontWeight: 700 }}>
+            {selCountOnScreen} selected
+          </span>
+          {pendingBulkDelete ? (
             <>
-              <span style={{ color: "#7c6cf8", fontSize: 11, fontWeight: 700 }}>
-                {selCountOnScreen} selected
+              <span style={{ color: "#f43f5e", fontSize: 11, fontWeight: 600 }}>
+                Remove {selCountOnScreen} row{selCountOnScreen !== 1 ? "s" : ""}?
               </span>
-              {pendingBulkDelete ? (
-                <>
-                  <span style={{ color: "#f43f5e", fontSize: 11, fontWeight: 600 }}>
-                    Remove {selCountOnScreen} row{selCountOnScreen !== 1 ? "s" : ""}?
-                  </span>
-                  <button onClick={bulkDelete} style={S.confirmBtn}
-                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(244,63,94,0.22)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(244,63,94,0.12)"; }}>
-                    Yes, delete
-                  </button>
-                  <button onClick={() => setPendingBulkDelete(false)} style={S.cancelBtn}>
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button onClick={() => setPendingBulkDelete(true)} style={S.bulkDeleteBtn}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.background = "rgba(244,63,94,0.12)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.background = "rgba(244,63,94,0.07)"; }}>
-                  🗑 Delete selected
-                </button>
-              )}
-              <span style={{ width: 1, height: 14, background: "rgba(255,255,255,0.1)", display: "inline-block" }} />
-            </>
-          )}
-          {deletedIds.size > 0 && (
-            <>
-              <span style={{ color: T.textSecondary, fontSize: 11 }}>
-                <span style={{ color: "#f43f5e", fontWeight: 700 }}>{deletedIds.size}</span> removed
-              </span>
-              <button onClick={() => setShowDeleted(v => !v)} style={S.toolbarBtn}>
-                {showDeleted ? "← Active rows" : "View removed"}
+              <button onClick={bulkDelete} style={S.confirmBtn}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(244,63,94,0.22)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(244,63,94,0.12)"; }}>
+                Yes, remove
               </button>
-              <button onClick={restoreAll} style={S.restoreBtn}>↩ Restore all</button>
+              <button onClick={() => setPendingBulkDelete(false)} style={S.cancelBtn}>
+                Cancel
+              </button>
             </>
+          ) : (
+            <button onClick={() => setPendingBulkDelete(true)} style={S.bulkDeleteBtn}
+              onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.background = "rgba(244,63,94,0.12)"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.background = "rgba(244,63,94,0.07)"; }}>
+              🗑 Remove selected
+            </button>
           )}
         </div>
       )}
 
       {visibleRecords.length === 0 ? (
         <div style={{ ...S.msg, background: T.bgCard, border: `1px solid ${T.borderCard}`, color: T.textSecondary }}>
-          {showDeleted
-            ? "No removed rows."
-            : "All rows removed. Click \"Restore all\" to bring them back."}
+          No IP addresses to display.
         </div>
       ) : (
         <div style={{ ...S.tableWrap, background: T.bgCard, border: `1px solid ${T.borderCard}`, boxShadow: T.shadowCard }}>
