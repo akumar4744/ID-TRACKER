@@ -123,55 +123,83 @@ const NAV_ITEMS: { page: NavPage; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
-// ── Global CSS injected when light mode is active ─────────────────────────────
-// Uses !important to override hardcoded inline styles in child components.
+// ── Global CSS for light (default) theme — glassmorphism + crimson ────────────
 const LIGHT_CSS = `
   [data-theme="light"] {
     color-scheme: light;
+    font-family: 'Sarabun', -apple-system, sans-serif !important;
   }
+
+  /* ── Glassmorphism cards / panels ── */
+  [data-theme="light"] .glass-card,
+  [data-theme="light"] [class*="card"] {
+    background:    rgba(255,255,255,0.72) !important;
+    backdrop-filter: blur(22px) saturate(2) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(2) !important;
+    border:        1px solid rgba(255,255,255,0.85) !important;
+    box-shadow:    0 4px 24px rgba(142,22,22,0.07), 0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.95) !important;
+  }
+
   /* ── Inputs, selects, textareas ── */
   [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]) {
-    background: #f8f9fc !important;
-    color: #111827 !important;
-    border-color: rgba(0,0,0,0.1) !important;
+    background:   rgba(255,255,255,0.92) !important;
+    color:        #1a0808 !important;
+    border-color: rgba(142,22,22,0.13) !important;
+    backdrop-filter: blur(8px) !important;
   }
-  [data-theme="light"] input::placeholder { color: #9ca3af !important; }
+  [data-theme="light"] input::placeholder  { color: #d4b0b0 !important; }
   [data-theme="light"] select {
-    background: #f8f9fc !important;
-    color: #111827 !important;
-    border-color: rgba(0,0,0,0.1) !important;
+    background:   rgba(255,255,255,0.92) !important;
+    color:        #1a0808 !important;
+    border-color: rgba(142,22,22,0.13) !important;
   }
-  [data-theme="light"] option {
-    background: #ffffff;
-    color: #111827;
-  }
+  [data-theme="light"] option  { background: #ffffff; color: #1a0808; }
   [data-theme="light"] textarea {
-    background: #f8f9fc !important;
-    color: #111827 !important;
-    border-color: rgba(0,0,0,0.1) !important;
+    background:   rgba(255,255,255,0.92) !important;
+    color:        #1a0808 !important;
+    border-color: rgba(142,22,22,0.13) !important;
   }
-  [data-theme="light"] textarea::placeholder { color: #9ca3af !important; }
+  [data-theme="light"] textarea::placeholder { color: #d4b0b0 !important; }
+
   /* ── Scrollbars ── */
-  [data-theme="light"] ::-webkit-scrollbar { width: 5px; height: 5px; }
-  [data-theme="light"] ::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 4px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 4px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }
-  /* ── Code / mono / kbd ── */
-  [data-theme="light"] code { background: rgba(0,0,0,0.05) !important; color: #374151 !important; }
-  [data-theme="light"] kbd  { background: rgba(0,0,0,0.05) !important; color: #374151 !important; border-color: rgba(0,0,0,0.12) !important; }
+  [data-theme="light"] ::-webkit-scrollbar       { width: 4px; height: 4px; }
+  [data-theme="light"] ::-webkit-scrollbar-track { background: rgba(142,22,22,0.03); border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.18); border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.35); }
+
+  /* ── Code / mono ── */
+  [data-theme="light"] code { background: rgba(142,22,22,0.06) !important; color: #8e1616 !important; border-radius: 4px; padding: 1px 5px; }
+  [data-theme="light"] kbd  { background: rgba(142,22,22,0.06) !important; color: #8e1616 !important; border-color: rgba(142,22,22,0.15) !important; }
+
   /* ── Table chrome ── */
-  [data-theme="light"] table { border-color: rgba(0,0,0,0.06) !important; }
-  [data-theme="light"] th   { background: #f3f4f8 !important; color: #374151 !important; border-color: rgba(0,0,0,0.07) !important; }
-  [data-theme="light"] td   { border-color: rgba(0,0,0,0.05) !important; }
+  [data-theme="light"] table { border-color: rgba(142,22,22,0.07) !important; }
+  [data-theme="light"] th    { background: rgba(142,22,22,0.03) !important; color: #8e1616 !important; border-color: rgba(142,22,22,0.08) !important; letter-spacing: 0.8px; }
+  [data-theme="light"] td    { border-color: rgba(142,22,22,0.06) !important; color: #1a0808 !important; }
+  [data-theme="light"] tr:hover td { background: rgba(142,22,22,0.025) !important; }
+
   /* ── Focus rings ── */
-  [data-theme="light"] *:focus-visible { outline-color: rgba(124,108,248,0.5); }
+  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.45) !important; }
+
+  /* ── Modal / overlay ── */
+  [data-theme="light"] [style*="position: fixed"] > div,
+  [data-theme="light"] [style*="position:fixed"] > div {
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+  }
+
+  /* ── Badges / chips ── */
+  [data-theme="light"] [style*="7c6cf8"] {
+    color: #8e1616 !important;
+    border-color: rgba(142,22,22,0.22) !important;
+    background: rgba(142,22,22,0.07) !important;
+  }
 `;
 
 // ── Root export ───────────────────────────────────────────────────────────────
 export default function Dashboard({ onLogout, profile }: DashboardProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    try { return (localStorage.getItem("admin-theme") as Theme) ?? "dark"; }
-    catch { return "dark"; }
+    try { return (localStorage.getItem("admin-theme") as Theme) ?? "light"; }
+    catch { return "light"; }
   });
 
   const T = getT(theme);
@@ -234,7 +262,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
         height:     "100vh",
         overflow:   "hidden",
         background: T.bgApp,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif",
         fontSize:   14,
         transition: "background 0.25s ease",
       }}
@@ -247,21 +275,23 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
         onMouseEnter={() => setSidebarHover(true)}
         onMouseLeave={() => setSidebarHover(false)}
         style={{
-          width:          240,
-          height:         "100vh",
-          overflowY:      "auto",
-          position:       "sticky",
-          top:            0,
-          background:     T.bgSidebar,
-          borderRight:    `1px solid ${T.borderSidebar}`,
-          display:        "flex",
-          flexDirection:  "column",
-          padding:        "20px 12px",
-          flexShrink:     0,
-          gap:            6,
-          boxShadow:      sidebarHover ? T.shadowSidebarHover : T.shadowSidebar,
-          zIndex:         10,
-          transition:     "box-shadow 0.4s ease, background 0.25s ease",
+          width:              240,
+          height:             "100vh",
+          overflowY:          "auto",
+          position:           "sticky",
+          top:                0,
+          background:         T.bgSidebar,
+          backdropFilter:     "blur(24px) saturate(2)",
+          WebkitBackdropFilter:"blur(24px) saturate(2)",
+          borderRight:        `1px solid ${T.borderSidebar}`,
+          display:            "flex",
+          flexDirection:      "column",
+          padding:            "20px 12px",
+          flexShrink:         0,
+          gap:                6,
+          boxShadow:          sidebarHover ? T.shadowSidebarHover : T.shadowSidebar,
+          zIndex:             10,
+          transition:         "box-shadow 0.4s ease, background 0.25s ease",
         }}
       >
         {/* Ambient glow */}
@@ -344,8 +374,8 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                   <span style={{
                     position: "absolute", right: 10,
                     width: 5, height: 5, borderRadius: "50%",
-                    background: "#7c6cf8",
-                    boxShadow:  "0 0 8px rgba(124,108,248,0.8)",
+                    background: "#8e1616",
+                    boxShadow:  "0 0 8px rgba(142,22,22,0.7)",
                   }} />
                 )}
               </button>
@@ -404,13 +434,13 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           <div style={{
             width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
             background: isLight
-              ? "linear-gradient(135deg, rgba(124,108,248,0.3), rgba(124,108,248,0.12))"
-              : "linear-gradient(135deg, rgba(124,108,248,0.4), rgba(124,108,248,0.15))",
-            border:    "1px solid rgba(124,108,248,0.3)",
+              ? "linear-gradient(135deg, rgba(142,22,22,0.15), rgba(142,22,22,0.06))"
+              : "linear-gradient(135deg, rgba(142,22,22,0.4), rgba(142,22,22,0.18))",
+            border:    "1px solid rgba(142,22,22,0.25)",
             display:   "flex", alignItems: "center", justifyContent: "center",
-            color:     isLight ? "#5b50d6" : "#a5a8ff",
+            color:     isLight ? "#8e1616" : "#e87070",
             fontSize:  12, fontWeight: 700,
-            boxShadow: "0 0 12px rgba(124,108,248,0.2)",
+            boxShadow: "0 0 12px rgba(142,22,22,0.15)",
           }}>
             {initials}
           </div>
@@ -432,9 +462,9 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
             </span>
           </div>
           <span style={{
-            background:  isLight ? "rgba(124,108,248,0.08)" : "rgba(124,108,248,0.12)",
-            border:      "1px solid rgba(124,108,248,0.22)",
-            color:       "#7c6cf8",
+            background:  isLight ? "rgba(142,22,22,0.07)" : "rgba(142,22,22,0.15)",
+            border:      "1px solid rgba(142,22,22,0.22)",
+            color:       isLight ? "#8e1616" : "#e87070",
             borderRadius: 4, padding: "2px 5px",
             fontSize: 8, fontWeight: 700, letterSpacing: 0.8, flexShrink: 0,
           }}>ADMIN</span>
@@ -497,16 +527,18 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
 
         {/* ── Page header ── */}
         <div style={{
-          display:         "flex",
-          justifyContent:  "space-between",
-          alignItems:      "flex-start",
-          padding:         "22px 28px 18px",
-          background:      T.bgHeader,
-          borderBottom:    `1px solid ${T.borderHeader}`,
-          gap:             16,
-          flexWrap:        "wrap",
-          boxShadow:       isLight ? "0 1px 0 rgba(0,0,0,0.04)" : "none",
-          transition:      "background 0.25s ease, border-color 0.25s ease",
+          display:              "flex",
+          justifyContent:       "space-between",
+          alignItems:           "flex-start",
+          padding:              "22px 28px 18px",
+          background:           T.bgHeader,
+          backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+          WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+          borderBottom:         `1px solid ${T.borderHeader}`,
+          gap:                  16,
+          flexWrap:             "wrap",
+          boxShadow:            isLight ? "0 2px 12px rgba(142,22,22,0.05), 0 1px 0 rgba(142,22,22,0.07)" : "none",
+          transition:           "background 0.25s ease, border-color 0.25s ease",
         }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, animation: "fadeDown 0.3s ease both" }}>
             <h1 style={{ color: T.textPrimary, margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: -0.4 }}>
@@ -523,7 +555,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
               onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = "1";   e.currentTarget.style.transform = "none"; }}
               style={{
-                background:    "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                background:    "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                 border:        "none",
                 color:         "#fff",
                 borderRadius:  10,
@@ -533,7 +565,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                 cursor:        "pointer",
                 fontFamily:    "inherit",
                 flexShrink:    0,
-                boxShadow:     "0 4px 16px rgba(124,108,248,0.35), inset 0 1px 0 rgba(255,255,255,0.1)",
+                boxShadow:     "0 4px 16px rgba(142,22,22,0.32), inset 0 1px 0 rgba(255,255,255,0.12)",
                 letterSpacing: 0.2,
                 display:       "flex",
                 alignItems:    "center",
@@ -570,13 +602,15 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {page === "records" && (
             <>
               <div style={{
-                background:    T.bgCard,
-                border:        `1px solid ${T.borderCard}`,
-                borderRadius:  14,
-                overflow:      "hidden",
-                boxShadow:     T.shadowCard,
-                animation:     "fadeUp 0.3s ease both",
-                transition:    "background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease",
+                background:           T.bgCard,
+                backdropFilter:       isLight ? "blur(20px) saturate(1.9)" : "none",
+                WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.9)" : "none",
+                border:               `1px solid ${T.borderCard}`,
+                borderRadius:         14,
+                overflow:             "hidden",
+                boxShadow:            T.shadowCard,
+                animation:            "fadeUp 0.3s ease both",
+                transition:           "background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease",
               }}>
                 <RecordsTable refreshTrigger={refreshTrigger} />
               </div>
