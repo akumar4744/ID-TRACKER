@@ -1,4 +1,6 @@
 // File: src/pages/Dashboard.tsx
+// Clean white + crimson #8e1616 design — inspired by punto7x.com
+// Soft background orbs, white cards with thin red borders, no black anywhere.
 
 import { useState, useEffect, useContext } from "react";
 import RecordsTable from "../components/RecordsTable";
@@ -16,7 +18,6 @@ import type { UserProfile } from "../lib/auth";
 import { ThemeCtx, getT } from "../lib/theme";
 import type { Theme } from "../lib/theme";
 
-// ── Re-export ThemeCtx so any component in the tree can consume it ────────────
 export { ThemeCtx };
 
 type NavPage = "records" | "addresses" | "employees" | "live" | "credentials" | "tasks" | "security" | "recovery" | "workspace";
@@ -123,49 +124,49 @@ const NAV_ITEMS: { page: NavPage; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
-// ── Global CSS for light (default) theme — glassmorphism + crimson ────────────
+// ── Global overrides injected for light mode ──────────────────────────────────
 const LIGHT_CSS = `
   [data-theme="light"] {
     color-scheme: light;
     font-family: 'Sarabun', -apple-system, sans-serif !important;
   }
 
-  /* ── Glassmorphism cards / panels ── */
-  [data-theme="light"] .glass-card,
-  [data-theme="light"] [class*="card"] {
-    background:    rgba(255,255,255,0.72) !important;
-    backdrop-filter: blur(22px) saturate(2) !important;
-    -webkit-backdrop-filter: blur(22px) saturate(2) !important;
-    border:        1px solid rgba(255,255,255,0.85) !important;
-    box-shadow:    0 4px 24px rgba(142,22,22,0.07), 0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.95) !important;
+  /* ── Force white backgrounds everywhere in child pages ── */
+  [data-theme="light"] [style*="background: rgba(13,16,34"],
+  [data-theme="light"] [style*="background:rgba(13,16,34"],
+  [data-theme="light"] [style*="background: #0d1022"],
+  [data-theme="light"] [style*="background:#0d1022"],
+  [data-theme="light"] [style*="background: #080a14"],
+  [data-theme="light"] [style*="background:#080a14"] {
+    background: #ffffff !important;
+    color: #2d0a0a !important;
   }
 
   /* ── Inputs, selects, textareas ── */
   [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]) {
-    background:   rgba(255,255,255,0.92) !important;
-    color:        #1a0808 !important;
-    border-color: rgba(142,22,22,0.13) !important;
-    backdrop-filter: blur(8px) !important;
+    background:   #fdf8f8 !important;
+    color:        #2d0a0a !important;
+    border-color: rgba(142,22,22,0.14) !important;
   }
-  [data-theme="light"] input::placeholder  { color: #d4b0b0 !important; }
+  [data-theme="light"] input::placeholder  { color: #d8bcbc !important; }
   [data-theme="light"] select {
-    background:   rgba(255,255,255,0.92) !important;
-    color:        #1a0808 !important;
-    border-color: rgba(142,22,22,0.13) !important;
+    background:   #fdf8f8 !important;
+    color:        #2d0a0a !important;
+    border-color: rgba(142,22,22,0.14) !important;
   }
-  [data-theme="light"] option  { background: #ffffff; color: #1a0808; }
+  [data-theme="light"] option  { background: #ffffff; color: #2d0a0a; }
   [data-theme="light"] textarea {
-    background:   rgba(255,255,255,0.92) !important;
-    color:        #1a0808 !important;
-    border-color: rgba(142,22,22,0.13) !important;
+    background:   #fdf8f8 !important;
+    color:        #2d0a0a !important;
+    border-color: rgba(142,22,22,0.14) !important;
   }
-  [data-theme="light"] textarea::placeholder { color: #d4b0b0 !important; }
+  [data-theme="light"] textarea::placeholder { color: #d8bcbc !important; }
 
   /* ── Scrollbars ── */
   [data-theme="light"] ::-webkit-scrollbar       { width: 4px; height: 4px; }
   [data-theme="light"] ::-webkit-scrollbar-track { background: rgba(142,22,22,0.03); border-radius: 99px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.18); border-radius: 99px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.35); }
+  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.16); border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.30); }
 
   /* ── Code / mono ── */
   [data-theme="light"] code { background: rgba(142,22,22,0.06) !important; color: #8e1616 !important; border-radius: 4px; padding: 1px 5px; }
@@ -173,25 +174,58 @@ const LIGHT_CSS = `
 
   /* ── Table chrome ── */
   [data-theme="light"] table { border-color: rgba(142,22,22,0.07) !important; }
-  [data-theme="light"] th    { background: rgba(142,22,22,0.03) !important; color: #8e1616 !important; border-color: rgba(142,22,22,0.08) !important; letter-spacing: 0.8px; }
-  [data-theme="light"] td    { border-color: rgba(142,22,22,0.06) !important; color: #1a0808 !important; }
+  [data-theme="light"] th    {
+    background:    rgba(142,22,22,0.04) !important;
+    color:         #8e1616 !important;
+    border-color:  rgba(142,22,22,0.08) !important;
+    letter-spacing: 0.5px;
+    font-weight:   600;
+  }
+  [data-theme="light"] td    {
+    border-color:  rgba(142,22,22,0.06) !important;
+    color:         #2d0a0a !important;
+    background:    transparent !important;
+  }
   [data-theme="light"] tr:hover td { background: rgba(142,22,22,0.025) !important; }
 
   /* ── Focus rings ── */
-  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.45) !important; }
+  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.40) !important; }
 
-  /* ── Modal / overlay ── */
-  [data-theme="light"] [style*="position: fixed"] > div,
-  [data-theme="light"] [style*="position:fixed"] > div {
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
+  /* ── Dark text that should be light ── */
+  [data-theme="light"] [style*="color: #eef0f8"],
+  [data-theme="light"] [style*="color:#eef0f8"] { color: #2d0a0a !important; }
+  [data-theme="light"] [style*="color: rgb(238,240,248)"] { color: #2d0a0a !important; }
+  [data-theme="light"] [style*="color: #8892b0"],
+  [data-theme="light"] [style*="color:#8892b0"] { color: #6b3030 !important; }
+  [data-theme="light"] [style*="color: #4a526e"],
+  [data-theme="light"] [style*="color:#4a526e"] { color: #b07878 !important; }
+
+  /* ── Remove any dark background from panels/modals ── */
+  [data-theme="light"] [style*="background: rgba(5,6,13"],
+  [data-theme="light"] [style*="background:rgba(5,6,13"] {
+    background: #ffffff !important;
   }
 
   /* ── Badges / chips ── */
   [data-theme="light"] [style*="7c6cf8"] {
-    color: #8e1616 !important;
+    color:        #8e1616 !important;
     border-color: rgba(142,22,22,0.22) !important;
-    background: rgba(142,22,22,0.07) !important;
+    background:   rgba(142,22,22,0.06) !important;
+  }
+
+  /* ── Buttons: ensure no purple ── */
+  [data-theme="light"] button[style*="7c6cf8"],
+  [data-theme="light"] button[style*="124,108,248"] {
+    background: linear-gradient(135deg, #8e1616 0%, #6b1010 100%) !important;
+    box-shadow: 0 4px 16px rgba(142,22,22,0.28) !important;
+  }
+
+  /* ── Generic white panels for child pages ── */
+  [data-theme="light"] .admin-page-panel {
+    background:    #ffffff !important;
+    border:        1px solid rgba(142,22,22,0.09) !important;
+    border-radius: 18px !important;
+    box-shadow:    0 2px 16px rgba(142,22,22,0.07) !important;
   }
 `;
 
@@ -204,12 +238,10 @@ export default function Dashboard({ onLogout, profile }: DashboardProps) {
 
   const T = getT(theme);
 
-  // Persist theme
   useEffect(() => {
     try { localStorage.setItem("admin-theme", theme); } catch {}
   }, [theme]);
 
-  // Inject / remove global CSS for light mode
   useEffect(() => {
     let el = document.getElementById("admin-theme-css") as HTMLStyleElement | null;
     if (!el) {
@@ -229,6 +261,39 @@ export default function Dashboard({ onLogout, profile }: DashboardProps) {
   );
 }
 
+// ── DOM patcher: fixes hardcoded dark inline-styles in child components ───────
+// Only runs in light mode. Intercepts new nodes + style attribute mutations.
+const DARK_BG_RE  = /rgba?\(\s*(8\s*,\s*10\s*,\s*20|13\s*,\s*16\s*,\s*34|5\s*,\s*6\s*,\s*13|20\s*,\s*19\s*,\s*38)/i;
+const DARK_HEX_BG = /^(#0f1320|#141826|#080a14|#05060d|#0d1022|#0a0d1a|#1a1b2e)$/i;
+const DARK_TEXT_RE = /^(#eef0f8|rgb\(\s*238\s*,|#f0f2f8|rgb\(\s*240\s*,\s*242)/i;
+const PURPLE_TEXT  = /^(#818cf8|#7c6cf8|#a5a8ff|rgb\(\s*129\s*,\s*140\s*,\s*248|rgb\(\s*124\s*,\s*108)/i;
+const DARK_MUTED   = /^(#4a526e|#4a5166|#8892b0|rgb\(\s*74\s*,\s*82|rgb\(\s*136\s*,\s*146)/i;
+const WHITE_BDR    = /^rgba?\(\s*255\s*,\s*255\s*,\s*255\s*,\s*0\.(0[0-9]|1[0-4])\s*\)$/i;
+const PURPLE_BG    = /rgba?\(\s*(124\s*,\s*108\s*,\s*248|91\s*,\s*110\s*,\s*245|129\s*,\s*140\s*,\s*248)/i;
+
+function patchLightEl(el: HTMLElement) {
+  const s = el.style;
+  const bg  = s.background.trim();
+  const bgc = s.backgroundColor.trim();
+  const col = s.color.trim();
+  const bdc = s.borderColor.trim();
+
+  // Dark backgrounds → white
+  if (bg  && (DARK_BG_RE.test(bg)  || DARK_HEX_BG.test(bg)))  s.background     = "#ffffff";
+  if (bgc && (DARK_BG_RE.test(bgc) || DARK_HEX_BG.test(bgc))) s.backgroundColor = "#ffffff";
+  // Purple/indigo backgrounds → crimson tint
+  if (bg  && PURPLE_BG.test(bg))   s.background     = "rgba(142,22,22,0.06)";
+  if (bgc && PURPLE_BG.test(bgc))  s.backgroundColor = "rgba(142,22,22,0.06)";
+
+  // Text color patches
+  if (col && DARK_TEXT_RE.test(col))  s.color = "#2d0a0a";
+  if (col && PURPLE_TEXT.test(col))   s.color = "#8e1616";
+  if (col && DARK_MUTED.test(col))    s.color = "#b07878";
+
+  // Border patches
+  if (bdc && WHITE_BDR.test(bdc))   s.borderColor = "rgba(142,22,22,0.12)";
+}
+
 // ── Inner dashboard ───────────────────────────────────────────────────────────
 function DashboardInner({ onLogout, profile }: DashboardProps) {
   const { theme, toggle, T } = useContext(ThemeCtx);
@@ -239,16 +304,43 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
 
   async function handleLogout() { await signOut(); onLogout(); }
 
+  // Light-mode DOM patcher — fixes hardcoded dark colors from child components
+  useEffect(() => {
+    if (theme !== "light") return;
+    const root = document.querySelector("[data-theme='light']") as HTMLElement | null;
+    if (!root) return;
+
+    // Initial sweep
+    root.querySelectorAll<HTMLElement>("*").forEach(patchLightEl);
+
+    const obs = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === "childList") {
+          m.addedNodes.forEach((n) => {
+            if (n instanceof HTMLElement) {
+              patchLightEl(n);
+              n.querySelectorAll<HTMLElement>("*").forEach(patchLightEl);
+            }
+          });
+        } else if (m.type === "attributes" && m.target instanceof HTMLElement) {
+          patchLightEl(m.target as HTMLElement);
+        }
+      }
+    });
+    obs.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ["style"] });
+    return () => obs.disconnect();
+  }, [theme]);
+
   const pageLabels: Record<NavPage, { title: string; subtitle: string }> = {
-    records:     { title: "IP Address",   subtitle: "Manage IP address entries. Save first, then Check to validate Unique IDs." },
-    addresses:   { title: "Proxy",        subtitle: "Bulk import, select ranges, and assign proxy IPs to employees."          },
-    employees:   { title: "Employees",    subtitle: "Create, manage, revoke and delete employee accounts."                   },
-    live:        { title: "Live Monitor", subtitle: "Real-time view of active employee screen-share sessions."               },
-    credentials: { title: "Credentials",  subtitle: "Store platform credentials and send them to any employee."              },
-    tasks:       { title: "Tasks",        subtitle: "Compose tasks once and assign them to one or more employees."           },
-    security:    { title: "Security",     subtitle: "Manage two-factor authentication and recovery codes."                  },
-    recovery:    { title: "Recovery",     subtitle: "Review and approve emergency account-recovery requests."                },
-    workspace:   { title: "Workspace",    subtitle: "Your private space — notes and an encrypted vault only you can read."  },
+    records:     { title: "IP Address",   subtitle: "Manage IP address entries and validate unique IDs." },
+    addresses:   { title: "Proxy",        subtitle: "Bulk import, select ranges, and assign proxy IPs to employees." },
+    employees:   { title: "Employees",    subtitle: "Create, manage, revoke and delete employee accounts." },
+    live:        { title: "Live Monitor", subtitle: "Real-time view of active employee screen-share sessions." },
+    credentials: { title: "Credentials",  subtitle: "Store platform credentials and send them to any employee." },
+    tasks:       { title: "Tasks",        subtitle: "Compose tasks once and assign them to one or more employees." },
+    security:    { title: "Security",     subtitle: "Manage two-factor authentication and recovery codes." },
+    recovery:    { title: "Recovery",     subtitle: "Review and approve emergency account-recovery requests." },
+    workspace:   { title: "Workspace",    subtitle: "Your private space — notes and an encrypted vault only you can read." },
   };
 
   const initials = (profile.full_name || profile.email)[0].toUpperCase();
@@ -264,70 +356,139 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
         background: T.bgApp,
         fontFamily: "'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif",
         fontSize:   14,
+        position:   "relative",
         transition: "background 0.25s ease",
       }}
     >
 
-      {/* ══════════════════════════════════════════════════════════════════════
+      {/* ════════════════════════════════════════════════════════════════════
+          BACKGROUND ORBS — decorative blurred crimson circles
+      ════════════════════════════════════════════════════════════════════ */}
+      {isLight && (
+        <div style={{
+          position:      "fixed",
+          inset:         0,
+          pointerEvents: "none",
+          zIndex:        0,
+          overflow:      "hidden",
+        }}>
+          {/* Top-right large orb */}
+          <div style={{
+            position:     "absolute",
+            top:          -120,
+            right:        -80,
+            width:        480,
+            height:       480,
+            borderRadius: "50%",
+            background:   "rgba(142,22,22,0.07)",
+            filter:       "blur(90px)",
+            animation:    "orbFloat 12s ease-in-out infinite",
+          }} />
+          {/* Bottom-left medium orb */}
+          <div style={{
+            position:     "absolute",
+            bottom:       -60,
+            left:         60,
+            width:        360,
+            height:       360,
+            borderRadius: "50%",
+            background:   "rgba(142,22,22,0.06)",
+            filter:       "blur(80px)",
+            animation:    "orbFloat 15s ease-in-out infinite reverse",
+          }} />
+          {/* Center small accent orb */}
+          <div style={{
+            position:     "absolute",
+            top:          "40%",
+            left:         "50%",
+            transform:    "translate(-50%,-50%)",
+            width:        280,
+            height:       280,
+            borderRadius: "50%",
+            background:   "rgba(142,22,22,0.035)",
+            filter:       "blur(70px)",
+            animation:    "orbFloat 18s ease-in-out infinite",
+          }} />
+          {/* Bottom-right small orb */}
+          <div style={{
+            position:     "absolute",
+            bottom:       100,
+            right:        120,
+            width:        200,
+            height:       200,
+            borderRadius: "50%",
+            background:   "rgba(142,22,22,0.05)",
+            filter:       "blur(60px)",
+            animation:    "orbFloat 10s ease-in-out infinite 3s",
+          }} />
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════════════════════
           SIDEBAR
-      ══════════════════════════════════════════════════════════════════════ */}
+      ════════════════════════════════════════════════════════════════════ */}
       <aside
         onMouseEnter={() => setSidebarHover(true)}
         onMouseLeave={() => setSidebarHover(false)}
         style={{
-          width:              240,
-          height:             "100vh",
-          overflowY:          "auto",
-          position:           "sticky",
-          top:                0,
-          background:         T.bgSidebar,
-          backdropFilter:     "blur(24px) saturate(2)",
-          WebkitBackdropFilter:"blur(24px) saturate(2)",
-          borderRight:        `1px solid ${T.borderSidebar}`,
-          display:            "flex",
-          flexDirection:      "column",
-          padding:            "20px 12px",
-          flexShrink:         0,
-          gap:                6,
-          boxShadow:          sidebarHover ? T.shadowSidebarHover : T.shadowSidebar,
-          zIndex:             10,
-          transition:         "box-shadow 0.4s ease, background 0.25s ease",
+          width:         240,
+          height:        "100vh",
+          overflowY:     "auto",
+          position:      "sticky",
+          top:           0,
+          zIndex:        20,
+          background:    T.bgSidebar,
+          borderRight:   `1px solid ${T.borderSidebar}`,
+          display:       "flex",
+          flexDirection: "column",
+          padding:       "20px 12px",
+          flexShrink:    0,
+          gap:           6,
+          boxShadow:     sidebarHover ? T.shadowSidebarHover : T.shadowSidebar,
+          transition:    "box-shadow 0.35s ease",
         }}
       >
-        {/* Ambient glow */}
-        <div style={{
-          position:      "absolute",
-          top: 0, left: 0, right: 0, height: 300,
-          background:    T.sidebarGlow,
-          pointerEvents: "none",
-        }} />
 
         {/* ── Logo ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 8px 14px" }}>
-          <svg width="54" height="40" viewBox="0 0 48 36" fill="none" style={{ flexShrink: 0 }}>
-            <circle cx="14" cy="20" r="12" fill="#8B1A1A" />
-            <circle cx="33" cy="10" r="7.5" fill="#8B1A1A" />
-            <circle cx="40" cy="25" r="4.5" fill="#8B1A1A" />
-          </svg>
-          <div style={{ color: T.textPrimary, fontWeight: 800, fontSize: 18, letterSpacing: -0.5 }}>
-            Do<span style={{ color: "#8B1A1A" }}>T</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 8px 16px" }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+            background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 4px 14px rgba(142,22,22,0.30)",
+          }}>
+            <svg width="20" height="20" viewBox="0 0 48 36" fill="none">
+              <circle cx="14" cy="20" r="12" fill="rgba(255,255,255,0.9)" />
+              <circle cx="33" cy="10" r="7.5" fill="rgba(255,255,255,0.7)" />
+              <circle cx="40" cy="25" r="4.5" fill="rgba(255,255,255,0.55)" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ color: T.textPrimary, fontWeight: 800, fontSize: 17, letterSpacing: -0.4, lineHeight: 1.1 }}>
+              Do<span style={{ color: "#8e1616" }}>T</span>
+            </div>
+            <div style={{ color: T.textMuted, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 500 }}>
+              Portal
+            </div>
           </div>
         </div>
 
         {/* ── Nav divider ── */}
-        <div style={{
-          height: 1, margin: "0 4px 6px",
-          background: T.dividerGrad,
-        }} />
+        <div style={{ height: 1, margin: "0 4px 4px", background: T.dividerGrad }} />
 
         {/* ── Navigation ── */}
         <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <div style={{
-            color: T.navSectionLabel, fontSize: 9, fontWeight: 600,
-            letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 10px 4px",
+            color:         T.navSectionLabel,
+            fontSize:      9,
+            fontWeight:    600,
+            letterSpacing: 1.5,
+            textTransform: "uppercase",
+            padding:       "4px 10px 8px",
           }}>
             Navigation
           </div>
+
           {NAV_ITEMS.map(({ page: p, icon, label }) => {
             const active = page === p;
             return (
@@ -336,8 +497,10 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                 onClick={() => setPage(p)}
                 onMouseEnter={(e) => {
                   if (!active) {
-                    e.currentTarget.style.background = isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)";
-                    e.currentTarget.style.color      = isLight ? "#374151"           : "#6b7280";
+                    e.currentTarget.style.background = isLight
+                      ? "rgba(142,22,22,0.04)"
+                      : "rgba(255,255,255,0.04)";
+                    e.currentTarget.style.color = isLight ? "#8e1616" : "#6b7280";
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -347,61 +510,72 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                   }
                 }}
                 style={{
-                  display:     "flex",
-                  alignItems:  "center",
-                  gap:         9,
-                  borderRadius: 9,
-                  padding:     "9px 10px",
-                  cursor:      "pointer",
-                  background:  active ? T.navActiveGrad : "transparent",
-                  border:      active ? `1px solid ${T.navActiveBorder}` : "1px solid transparent",
-                  color:       active ? T.navActiveColor : T.navInactiveColor,
-                  fontSize:    12,
-                  fontWeight:  active ? 600 : 400,
-                  transition:  "all 0.18s cubic-bezier(0.16,1,0.3,1)",
-                  fontFamily:  "inherit",
-                  boxShadow:   active ? (isLight ? "0 2px 12px rgba(124,108,248,0.12)" : "0 2px 12px rgba(124,108,248,0.1)") : "none",
-                  position:    "relative",
-                  width:       "100%",
-                  textAlign:   "left",
+                  display:      "flex",
+                  alignItems:   "center",
+                  gap:          9,
+                  borderRadius: 10,
+                  padding:      "9px 10px",
+                  cursor:       "pointer",
+                  background:   active ? T.navActiveGrad : "transparent",
+                  border:       active
+                    ? `1px solid ${T.navActiveBorder}`
+                    : "1px solid transparent",
+                  color:        active ? T.navActiveColor : T.navInactiveColor,
+                  fontSize:     12.5,
+                  fontWeight:   active ? 600 : 400,
+                  transition:   "all 0.18s cubic-bezier(0.16,1,0.3,1)",
+                  fontFamily:   "inherit",
+                  boxShadow:    active
+                    ? (isLight ? "0 2px 10px rgba(142,22,22,0.10)" : "0 2px 12px rgba(142,22,22,0.10)")
+                    : "none",
+                  position:     "relative",
+                  width:        "100%",
+                  textAlign:    "left",
                 }}
               >
-                <span style={{ opacity: active ? 1 : 0.45, transition: "opacity 0.18s ease", display: "flex", flexShrink: 0 }}>
+                <span style={{
+                  opacity:    active ? 1 : 0.45,
+                  transition: "opacity 0.18s ease",
+                  display:    "flex",
+                  flexShrink: 0,
+                }}>
                   {icon}
                 </span>
-                <span style={{ letterSpacing: 0.1 }}>{label}</span>
+                <span style={{ letterSpacing: 0.1, flex: 1 }}>{label}</span>
                 {active && (
                   <span style={{
-                    position: "absolute", right: 10,
-                    width: 5, height: 5, borderRadius: "50%",
+                    width:      5,
+                    height:     5,
+                    borderRadius: "50%",
                     background: "#8e1616",
-                    boxShadow:  "0 0 8px rgba(142,22,22,0.7)",
+                    boxShadow:  "0 0 7px rgba(142,22,22,0.65)",
+                    flexShrink: 0,
                   }} />
                 )}
               </button>
             );
           })}
         </nav>
-              
-              
+
         <div style={{ flex: 1 }} />
 
         {/* ── Theme toggle ── */}
         <button
           onClick={toggle}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background   = T.bgBtnHover;
-            e.currentTarget.style.color        = T.textSecondary;
-            e.currentTarget.style.borderColor  = isLight ? "rgba(0,0,0,0.14)" : "rgba(255,255,255,0.12)";
+            e.currentTarget.style.background  = T.bgBtnHover;
+            e.currentTarget.style.color       = T.textSecondary;
+            e.currentTarget.style.borderColor = isLight ? "rgba(142,22,22,0.22)" : "rgba(255,255,255,0.12)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background   = T.bgToggle;
-            e.currentTarget.style.color        = T.colorToggle;
-            e.currentTarget.style.borderColor  = T.borderToggle;
+            e.currentTarget.style.background  = T.bgToggle;
+            e.currentTarget.style.color       = T.colorToggle;
+            e.currentTarget.style.borderColor = T.borderToggle;
           }}
           style={{
             display:      "flex",
             alignItems:   "center",
+            justifyContent: "center",
             gap:          8,
             background:   T.bgToggle,
             border:       `1px solid ${T.borderToggle}`,
@@ -415,11 +589,17 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
             width:        "100%",
           }}
         >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            {isLight
+              ? <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.5" />
+              : <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" />
+            }
+          </svg>
           <span>{isLight ? "Dark Mode" : "Light Mode"}</span>
         </button>
 
         {/* ── Divider ── */}
-        <div style={{ height: 1, background: T.dividerGrad }} />
+        <div style={{ height: 1, background: T.dividerGrad, margin: "2px 0" }} />
 
         {/* ── Profile chip ── */}
         <div style={{
@@ -432,15 +612,21 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           padding:      "9px 10px",
         }}>
           <div style={{
-            width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
+            width:      30,
+            height:     30,
+            borderRadius: "50%",
+            flexShrink: 0,
             background: isLight
-              ? "linear-gradient(135deg, rgba(142,22,22,0.15), rgba(142,22,22,0.06))"
+              ? "linear-gradient(135deg, rgba(142,22,22,0.14), rgba(142,22,22,0.06))"
               : "linear-gradient(135deg, rgba(142,22,22,0.4), rgba(142,22,22,0.18))",
-            border:    "1px solid rgba(142,22,22,0.25)",
-            display:   "flex", alignItems: "center", justifyContent: "center",
-            color:     isLight ? "#8e1616" : "#e87070",
-            fontSize:  12, fontWeight: 700,
-            boxShadow: "0 0 12px rgba(142,22,22,0.15)",
+            border:     "1px solid rgba(142,22,22,0.20)",
+            display:    "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color:      isLight ? "#8e1616" : "#e87070",
+            fontSize:   12,
+            fontWeight: 700,
+            boxShadow:  "0 0 10px rgba(142,22,22,0.12)",
           }}>
             {initials}
           </div>
@@ -454,39 +640,46 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
               {profile.full_name || "Admin"}
             </span>
             <span style={{
-              color:      T.textMuted,
-              fontSize:   9,
+              color:     T.textMuted,
+              fontSize:  9,
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             }}>
               {profile.email}
             </span>
           </div>
           <span style={{
-            background:  isLight ? "rgba(142,22,22,0.07)" : "rgba(142,22,22,0.15)",
-            border:      "1px solid rgba(142,22,22,0.22)",
-            color:       isLight ? "#8e1616" : "#e87070",
-            borderRadius: 4, padding: "2px 5px",
-            fontSize: 8, fontWeight: 700, letterSpacing: 0.8, flexShrink: 0,
-          }}>ADMIN</span>
+            background:   isLight ? "rgba(142,22,22,0.07)" : "rgba(142,22,22,0.15)",
+            border:       "1px solid rgba(142,22,22,0.20)",
+            color:        isLight ? "#8e1616" : "#e87070",
+            borderRadius: 4,
+            padding:      "2px 5px",
+            fontSize:     8,
+            fontWeight:   700,
+            letterSpacing: 0.8,
+            flexShrink:   0,
+          }}>
+            ADMIN
+          </span>
         </div>
 
         {/* ── Logout ── */}
         <button
           onClick={handleLogout}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background   = "rgba(244,63,94,0.06)";
-            e.currentTarget.style.borderColor  = "rgba(244,63,94,0.2)";
-            e.currentTarget.style.color        = "#f43f5e";
+            e.currentTarget.style.background  = "rgba(220,38,38,0.06)";
+            e.currentTarget.style.borderColor = "rgba(220,38,38,0.18)";
+            e.currentTarget.style.color       = "#dc2626";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background   = "transparent";
-            e.currentTarget.style.borderColor  = T.borderBtn;
-            e.currentTarget.style.color        = T.colorToggle;
+            e.currentTarget.style.background  = "transparent";
+            e.currentTarget.style.borderColor = T.borderBtn;
+            e.currentTarget.style.color       = T.colorToggle;
           }}
           style={{
             display:      "flex",
             alignItems:   "center",
-            gap:          8,
+            justifyContent: "center",
+            gap:          7,
             background:   "transparent",
             border:       `1px solid ${T.borderBtn}`,
             borderRadius: 9,
@@ -511,9 +704,9 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
         </button>
       </aside>
 
-      {/* ══════════════════════════════════════════════════════════════════════
+      {/* ════════════════════════════════════════════════════════════════════
           MAIN CONTENT
-      ══════════════════════════════════════════════════════════════════════ */}
+      ════════════════════════════════════════════════════════════════════ */}
       <main style={{
         flex:          1,
         display:       "flex",
@@ -521,27 +714,31 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
         overflow:      "auto",
         minHeight:     0,
         minWidth:      0,
-        background:    T.bgApp,
-        transition:    "background 0.25s ease",
+        position:      "relative",
+        zIndex:        10,
       }}>
 
         {/* ── Page header ── */}
         <div style={{
-          display:              "flex",
-          justifyContent:       "space-between",
-          alignItems:           "flex-start",
-          padding:              "22px 28px 18px",
-          background:           T.bgHeader,
-          backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-          WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-          borderBottom:         `1px solid ${T.borderHeader}`,
-          gap:                  16,
-          flexWrap:             "wrap",
-          boxShadow:            isLight ? "0 2px 12px rgba(142,22,22,0.05), 0 1px 0 rgba(142,22,22,0.07)" : "none",
-          transition:           "background 0.25s ease, border-color 0.25s ease",
+          display:        "flex",
+          justifyContent: "space-between",
+          alignItems:     "flex-start",
+          padding:        "22px 28px 18px",
+          background:     T.bgHeader,
+          borderBottom:   `1px solid ${T.borderHeader}`,
+          gap:            16,
+          flexWrap:       "wrap",
+          boxShadow:      isLight ? "0 1px 8px rgba(142,22,22,0.05)" : "none",
+          transition:     "background 0.25s ease",
         }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4, animation: "fadeDown 0.3s ease both" }}>
-            <h1 style={{ color: T.textPrimary, margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: -0.4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <h1 style={{
+              color:        T.textPrimary,
+              margin:       0,
+              fontSize:     20,
+              fontWeight:   700,
+              letterSpacing: -0.3,
+            }}>
               {pageLabels[page].title}
             </h1>
             <p style={{ color: T.textMuted, margin: 0, fontSize: 12 }}>
@@ -552,8 +749,16 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {page === "records" && (
             <button
               onClick={() => setShowModal(true)}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1";   e.currentTarget.style.transform = "none"; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity   = "0.88";
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow = "0 6px 20px rgba(142,22,22,0.36)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity   = "1";
+                e.currentTarget.style.transform = "none";
+                e.currentTarget.style.boxShadow = "0 4px 14px rgba(142,22,22,0.28)";
+              }}
               style={{
                 background:    "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                 border:        "none",
@@ -565,12 +770,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                 cursor:        "pointer",
                 fontFamily:    "inherit",
                 flexShrink:    0,
-                boxShadow:     "0 4px 16px rgba(142,22,22,0.32), inset 0 1px 0 rgba(255,255,255,0.12)",
+                boxShadow:     "0 4px 14px rgba(142,22,22,0.28)",
                 letterSpacing: 0.2,
                 display:       "flex",
                 alignItems:    "center",
                 gap:           7,
-                transition:    "all 0.2s cubic-bezier(0.16,1,0.3,1)",
+                transition:    "all 0.18s cubic-bezier(0.16,1,0.3,1)",
               }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
@@ -582,35 +787,34 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           )}
         </div>
 
-        {/* ── Accent gradient line ── */}
+        {/* ── Accent line ── */}
         <div style={{
-          height:     1,
+          height:     2,
           flexShrink: 0,
           background: T.accentLine,
-          opacity:    isLight ? 0.6 : 0.4,
+          opacity:    isLight ? 0.55 : 0.35,
         }} />
 
         {/* ── Page content ── */}
         <div style={{
           flex:          1,
-          padding:       "20px 28px 28px",
+          padding:       "22px 28px 32px",
           display:       "flex",
           flexDirection: "column",
           gap:           20,
           overflow:      "auto",
         }}>
+
+          {/* ── IP Address ── */}
           {page === "records" && (
             <>
               <div style={{
-                background:           T.bgCard,
-                backdropFilter:       isLight ? "blur(20px) saturate(1.9)" : "none",
-                WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.9)" : "none",
-                border:               `1px solid ${T.borderCard}`,
-                borderRadius:         14,
-                overflow:             "hidden",
-                boxShadow:            T.shadowCard,
-                animation:            "fadeUp 0.3s ease both",
-                transition:           "background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease",
+                background:   T.bgCard,
+                border:       `1px solid ${T.borderCard}`,
+                borderRadius: 18,
+                overflow:     "hidden",
+                boxShadow:    T.shadowCard,
+                animation:    "fadeUp 0.28s ease both",
               }}>
                 <RecordsTable refreshTrigger={refreshTrigger} />
               </div>
@@ -622,43 +826,108 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
               )}
             </>
           )}
+
+          {/* ── Proxy ── */}
           {page === "addresses" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <AddressManagement />
             </div>
           )}
+
+          {/* ── Employees ── */}
           {page === "employees" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <EmployeeManagement />
             </div>
           )}
+
+          {/* ── Live Monitor ── */}
           {page === "live" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{ animation: "fadeUp 0.28s ease both" }}>
               <LiveMonitor />
             </div>
           )}
+
+          {/* ── Credentials ── */}
           {page === "credentials" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <CredentialsManagement />
             </div>
           )}
+
+          {/* ── Tasks ── */}
           {page === "tasks" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <TasksManagement />
             </div>
           )}
+
+          {/* ── Security ── */}
           {page === "security" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <SecuritySettings />
             </div>
           )}
+
+          {/* ── Recovery ── */}
           {page === "recovery" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <RecoveryRequestsInbox />
             </div>
           )}
+
+          {/* ── Workspace ── */}
           {page === "workspace" && (
-            <div style={{ animation: "fadeUp 0.3s ease both" }}>
+            <div style={{
+              background:   T.bgCard,
+              border:       `1px solid ${T.borderCard}`,
+              borderRadius: 18,
+              overflow:     "hidden",
+              boxShadow:    T.shadowCard,
+              animation:    "fadeUp 0.28s ease both",
+            }}>
               <WorkspacePage />
             </div>
           )}
