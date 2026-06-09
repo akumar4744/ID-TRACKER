@@ -25,6 +25,10 @@ interface AssignmentRow {
   address_id:    string;
   address_text:  string;
   category:      string | null;
+  cache:         string | null;
+  keywords:      string | null;
+  smartlink:     string | null;
+  locked_meta:   boolean;
   status:        string;
   assigned_at:   string;
   updated_at:    string;
@@ -146,11 +150,14 @@ export default function AddressManagement() {
 
   // Assign modal
   const [showAssign,    setShowAssign]    = useState(false);
-  const [assignTo,      setAssignTo]      = useState("");
-  const [assignCategory, setAssignCategory] = useState("");
-  const [assigning,     setAssigning]     = useState(false);
-  const [assignMsg,     setAssignMsg]     = useState("");
-  const [assignErr,     setAssignErr]     = useState("");
+  const [assignTo,        setAssignTo]        = useState("");
+  const [assignCategory,  setAssignCategory]  = useState("");
+  const [assignCache,     setAssignCache]     = useState("");
+  const [assignKeywords,  setAssignKeywords]  = useState("");
+  const [assignSmartlink, setAssignSmartlink] = useState("");
+  const [assigning,       setAssigning]       = useState(false);
+  const [assignMsg,       setAssignMsg]       = useState("");
+  const [assignErr,       setAssignErr]       = useState("");
 
   // Delete
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -296,6 +303,7 @@ export default function AddressManagement() {
     const { data, error } = await supabase
       .from("address_assignments")
       .select(`id, address_id, status, assigned_at, updated_at, category,
+               cache, keywords, smartlink, locked_meta,
                addresses ( address ),
                profiles!employee_id ( full_name, email )`)
       .order("assigned_at", { ascending: false });
@@ -305,7 +313,11 @@ export default function AddressManagement() {
         id:            r.id,
         address_id:    r.address_id,
         address_text:  r.addresses?.address ?? "—",
-        category:      r.category ?? null,
+        category:      r.category      ?? null,
+        cache:         r.cache         ?? null,
+        keywords:      r.keywords      ?? null,
+        smartlink:     r.smartlink     ?? null,
+        locked_meta:   r.locked_meta   ?? false,
         status:        r.status,
         assigned_at:   r.assigned_at,
         updated_at:    r.updated_at,
@@ -533,26 +545,30 @@ export default function AddressManagement() {
     const result = data as { ok: boolean; error?: string; assigned?: number };
     if (!result.ok) { setAssigning(false); setAssignErr(result.error ?? "Assignment failed"); return; }
 
-    // Save category to the just-created/updated assignments
+    // Save category
     if (assignCategory.trim()) {
       const trimmed = assignCategory.trim();
-      // 1. Per-assignment category (used by Work View cards in admin + employee dashboard)
-      await supabase
-        .from("address_assignments")
-        .update({ category: trimmed })
-        .eq("employee_id", assignTo)
-        .in("address_id", selectedIds);
-      // 2. Per-address notes (used by the proxy table "Category" column)
-      //    Mirrors the value so the table display stays in sync with the assignment.
-      await supabase
-        .from("addresses")
-        .update({ notes: trimmed })
-        .in("id", selectedIds);
+      await supabase.from("address_assignments").update({ category: trimmed })
+        .eq("employee_id", assignTo).in("address_id", selectedIds);
+      await supabase.from("addresses").update({ notes: trimmed }).in("id", selectedIds);
+    }
+
+    // Save Cache / Keywords / Smartlink — locked to these IPs once set
+    const hasExtra = assignCache.trim() || assignKeywords.trim() || assignSmartlink.trim();
+    if (hasExtra) {
+      await supabase.from("address_assignments").update({
+        cache:       assignCache.trim()     || null,
+        keywords:    assignKeywords.trim()  || null,
+        smartlink:   assignSmartlink.trim() || null,
+        locked_meta: true,
+      }).eq("employee_id", assignTo).in("address_id", selectedIds);
     }
 
     setAssigning(false);
     setAssignMsg(`✅ ${result.assigned} address${result.assigned !== 1 ? "es" : ""} assigned.`);
-    setSelected(new Set()); setShowAssign(false); setAssignTo(""); setAssignCategory("");
+    setSelected(new Set()); setShowAssign(false);
+    setAssignTo(""); setAssignCategory("");
+    setAssignCache(""); setAssignKeywords(""); setAssignSmartlink("");
     // In virtual mode refresh allRows so assignment + category update immediately.
     // Use the `selectedIds` snapshot — `selected` was cleared above.
     if (virtualMode) {
@@ -1442,7 +1458,7 @@ export default function AddressManagement() {
               <span style={{ ...S.modalTitle, color: T.textPrimary }}>
                 Assign {selected.size} Address{selected.size !== 1 ? "es" : ""}
               </span>
-              <button style={{ ...S.closeBtn, color: T.textMuted }} onClick={() => { setShowAssign(false); setAssignCategory(""); }}>✕</button>
+              <button style={{ ...S.closeBtn, color: T.textMuted }} onClick={() => { setShowAssign(false); setAssignCategory(""); setAssignCache(""); setAssignKeywords(""); setAssignSmartlink(""); }}>✕</button>
             </div>
             <div style={S.modalBody}>
               {Array.from(selected).some((id) => (virtualMode ? allRows : addresses).find((a) => a.id === id)?.is_assigned) && (
@@ -1458,7 +1474,42 @@ export default function AddressManagement() {
                 placeholder="e.g. US Residential, Datacenter, Social…"
                 autoComplete="off"
               />
-              <label style={{ ...S.label, color: T.textMuted }}>Assign to Employee</label>
+              {/* ── Cache, Keywords, Smartlink — locked to IP once set ── */}
+              <label style={{ ...S.label, color: T.textMuted, marginTop: 4 }}>Cache (optional)</label>
+              <input
+                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
+                value={assignCache}
+                onChange={(e) => setAssignCache(e.target.value)}
+                placeholder="Cache value for this IP…"
+                autoComplete="off"
+              />
+              <label style={{ ...S.label, color: T.textMuted }}>Keywords (optional)</label>
+              <input
+                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
+                value={assignKeywords}
+                onChange={(e) => setAssignKeywords(e.target.value)}
+                placeholder="Keywords for this IP…"
+                autoComplete="off"
+              />
+              <label style={{ ...S.label, color: T.textMuted }}>Smartlink (optional)</label>
+              <input
+                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
+                value={assignSmartlink}
+                onChange={(e) => setAssignSmartlink(e.target.value)}
+                placeholder="Smartlink URL or identifier…"
+                autoComplete="off"
+              />
+              {(assignCache.trim() || assignKeywords.trim() || assignSmartlink.trim()) && (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.14)",
+                  borderRadius: 7, padding: "7px 10px", fontSize: 10.5, color: "#8e1616",
+                }}>
+                  🔒 These values will be <strong>locked</strong> to the selected IPs and cannot be changed via reassignment.
+                </div>
+              )}
+
+              <label style={{ ...S.label, color: T.textMuted, marginTop: 4 }}>Assign to Employee</label>
               <select style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }} value={assignTo} onChange={(e) => setAssignTo(e.target.value)}>
                 <option value="">— Select employee —</option>
                 {employees.filter((e) => e.status === "active").map((e) => (
@@ -1468,7 +1519,7 @@ export default function AddressManagement() {
               {assignErr && <div style={S.errorBox}>⚠ {assignErr}</div>}
             </div>
             <div style={{ ...S.modalFooter, borderTop: `1px solid ${T.dividerSolid}` }}>
-              <button style={{ ...S.cancelBtn, background: T.bgBtn, border: `1px solid ${T.borderBtn}`, color: T.textSecondary }} onClick={() => setShowAssign(false)}>Cancel</button>
+              <button style={{ ...S.cancelBtn, background: T.bgBtn, border: `1px solid ${T.borderBtn}`, color: T.textSecondary }} onClick={() => { setShowAssign(false); setAssignCache(""); setAssignKeywords(""); setAssignSmartlink(""); }}>Cancel</button>
               <button
                 style={assigning ? S.submitBtnDisabled : S.submitBtn}
                 onClick={handleAssign}
