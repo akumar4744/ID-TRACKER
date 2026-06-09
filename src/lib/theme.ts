@@ -52,48 +52,49 @@ export interface ThemeTokens {
   colorAccent: string;
 }
 
-// ── Light theme — Clean white, glassmorphism, crimson accents ─────────────────
+// ── Light theme — Pure white, red on button outlines only ─────────────────────
 export const light: ThemeTokens = {
   bgApp:              "#ffffff",
-  bgSidebar:          "rgba(255,255,255,0.82)",
-  borderSidebar:      "rgba(0,0,0,0.06)",
+  bgSidebar:          "#ffffff",
+  borderSidebar:      "rgba(0,0,0,0.07)",
   sidebarGlow:        "none",
-  shadowSidebar:      "2px 0 20px rgba(0,0,0,0.06)",
-  shadowSidebarHover: "2px 0 32px rgba(0,0,0,0.10)",
+  shadowSidebar:      "1px 0 12px rgba(0,0,0,0.06)",
+  shadowSidebarHover: "1px 0 20px rgba(0,0,0,0.09)",
 
-  navActiveGrad:   "rgba(142,22,22,0.07)",
-  navActiveBorder: "rgba(142,22,22,0.16)",
+  navActiveGrad:   "rgba(142,22,22,0.06)",
+  navActiveBorder: "rgba(142,22,22,0.18)",
   navActiveColor:  "#8e1616",
-  navInactiveColor:"#9999bb",
-  navSectionLabel: "#ccccdd",
+  navInactiveColor:"#9a9ab0",
+  navSectionLabel: "#c8c8d8",
 
   textPrimary:   "#1a1a2e",
   textSecondary: "#444466",
   textMuted:     "#8888aa",
   textTertiary:  "#bbbbcc",
 
-  bgCard:     "rgba(255,255,255,0.72)",
-  bgCardAlt:  "rgba(255,255,255,0.90)",
-  borderCard: "rgba(0,0,0,0.06)",
-  shadowCard: "0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
+  bgCard:     "#ffffff",
+  bgCardAlt:  "#fafafa",
+  borderCard: "rgba(0,0,0,0.07)",
+  shadowCard: "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
 
-  bgHeader:    "rgba(255,255,255,0.85)",
-  borderHeader:"rgba(0,0,0,0.06)",
+  bgHeader:    "#ffffff",
+  borderHeader:"rgba(0,0,0,0.07)",
 
   dividerGrad:  "linear-gradient(90deg, transparent, rgba(0,0,0,0.07), transparent)",
   dividerSolid: "rgba(0,0,0,0.06)",
 
-  bgBtn:      "rgba(0,0,0,0.04)",
-  borderBtn:  "rgba(0,0,0,0.08)",
-  bgBtnHover: "rgba(142,22,22,0.06)",
+  /* ── Buttons get red outlines ── */
+  bgBtn:      "#ffffff",
+  borderBtn:  "#8e1616",
+  bgBtnHover: "rgba(142,22,22,0.05)",
 
-  bgProfile:    "rgba(0,0,0,0.03)",
-  borderProfile:"rgba(0,0,0,0.07)",
+  bgProfile:    "#ffffff",
+  borderProfile:"rgba(0,0,0,0.08)",
 
-  accentLine:"linear-gradient(90deg, #8e1616 0%, rgba(142,22,22,0.18) 55%, transparent 100%)",
+  accentLine:"linear-gradient(90deg, #8e1616 0%, rgba(142,22,22,0.15) 55%, transparent 100%)",
 
-  bgInput:    "rgba(255,255,255,0.90)",
-  borderInput:"rgba(0,0,0,0.09)",
+  bgInput:    "#ffffff",
+  borderInput:"rgba(0,0,0,0.10)",
 
   bgTableHeader:      "rgba(0,0,0,0.025)",
   bgTableRow:         "transparent",
@@ -101,9 +102,9 @@ export const light: ThemeTokens = {
   bgTableRowSelected: "rgba(142,22,22,0.05)",
   borderTableRow:     "rgba(0,0,0,0.05)",
 
-  bgToggle:    "rgba(0,0,0,0.04)",
-  borderToggle:"rgba(0,0,0,0.08)",
-  colorToggle: "#9999bb",
+  bgToggle:    "#ffffff",
+  borderToggle:"#8e1616",
+  colorToggle: "#8e1616",
 
   colorSuccess: "#059669",
   colorWarning: "#d97706",

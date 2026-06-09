@@ -129,23 +129,24 @@ const LIGHT_CSS = `
   [data-theme="light"] {
     color-scheme: light;
     font-family: 'Sarabun', -apple-system, sans-serif !important;
+    background: #ffffff !important;
   }
 
   /* ── Inputs, selects, textareas ── */
   [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]) {
-    background:   rgba(255,255,255,0.90) !important;
+    background:   #ffffff !important;
     color:        #1a1a2e !important;
     border-color: rgba(0,0,0,0.10) !important;
   }
   [data-theme="light"] input::placeholder  { color: #bbbbcc !important; }
   [data-theme="light"] select {
-    background:   rgba(255,255,255,0.90) !important;
+    background:   #ffffff !important;
     color:        #1a1a2e !important;
     border-color: rgba(0,0,0,0.10) !important;
   }
   [data-theme="light"] option  { background: #ffffff; color: #1a1a2e; }
   [data-theme="light"] textarea {
-    background:   rgba(255,255,255,0.90) !important;
+    background:   #ffffff !important;
     color:        #1a1a2e !important;
     border-color: rgba(0,0,0,0.10) !important;
   }
@@ -153,39 +154,39 @@ const LIGHT_CSS = `
 
   /* ── Scrollbars ── */
   [data-theme="light"] ::-webkit-scrollbar       { width: 4px; height: 4px; }
-  [data-theme="light"] ::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 99px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.18); border-radius: 99px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.32); }
+  [data-theme="light"] ::-webkit-scrollbar-track { background: transparent; border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.20); border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.35); }
 
   /* ── Code / mono ── */
-  [data-theme="light"] code { background: rgba(0,0,0,0.05) !important; color: #8e1616 !important; border-radius: 4px; padding: 1px 5px; }
-  [data-theme="light"] kbd  { background: rgba(0,0,0,0.05) !important; color: #444466 !important; border-color: rgba(0,0,0,0.12) !important; }
+  [data-theme="light"] code { background: rgba(0,0,0,0.04) !important; color: #8e1616 !important; border-radius: 4px; padding: 1px 5px; }
+  [data-theme="light"] kbd  { background: rgba(0,0,0,0.04) !important; color: #444466 !important; border-color: rgba(0,0,0,0.12) !important; }
 
   /* ── Table chrome ── */
   [data-theme="light"] table { border-color: rgba(0,0,0,0.06) !important; }
-  [data-theme="light"] th    {
+  [data-theme="light"] th {
     background:     rgba(0,0,0,0.025) !important;
     color:          #8e1616 !important;
     border-color:   rgba(0,0,0,0.07) !important;
     letter-spacing: 0.5px;
     font-weight:    600;
   }
-  [data-theme="light"] td    {
+  [data-theme="light"] td {
     border-color: rgba(0,0,0,0.05) !important;
     color:        #1a1a2e !important;
     background:   transparent !important;
   }
-  [data-theme="light"] tr:hover td { background: rgba(0,0,0,0.02) !important; }
+  [data-theme="light"] tr:hover td { background: rgba(0,0,0,0.018) !important; }
 
   /* ── Focus rings ── */
-  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.45) !important; }
+  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.40) !important; }
 
-  /* ── Badges / chips: replace purple with crimson ── */
+  /* ── Replace lingering purple ── */
   [data-theme="light"] [style*="7c6cf8"],
   [data-theme="light"] [style*="818cf8"] {
     color:        #8e1616 !important;
-    border-color: rgba(142,22,22,0.20) !important;
-    background:   rgba(142,22,22,0.06) !important;
+    border-color: rgba(142,22,22,0.22) !important;
+    background:   transparent !important;
   }
 `;
 
@@ -321,44 +322,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
       }}
     >
 
-      {/* ════════════════════════════════════════════════════════════════════
-          BACKGROUND — subtle hint orbs so glassmorphism has texture to blur
-      ════════════════════════════════════════════════════════════════════ */}
-      {isLight && (
-        <div style={{
-          position:      "fixed",
-          inset:         0,
-          pointerEvents: "none",
-          zIndex:        0,
-          overflow:      "hidden",
-          background:    "#ffffff",
-        }}>
-          {/* Very subtle top-right crimson hint */}
-          <div style={{
-            position:     "absolute",
-            top:          -160,
-            right:        -100,
-            width:        560,
-            height:       560,
-            borderRadius: "50%",
-            background:   "rgba(142,22,22,0.04)",
-            filter:       "blur(110px)",
-            animation:    "orbFloat 14s ease-in-out infinite",
-          }} />
-          {/* Very subtle bottom-left hint */}
-          <div style={{
-            position:     "absolute",
-            bottom:       -80,
-            left:         -40,
-            width:        420,
-            height:       420,
-            borderRadius: "50%",
-            background:   "rgba(142,22,22,0.03)",
-            filter:       "blur(100px)",
-            animation:    "orbFloat 18s ease-in-out infinite reverse",
-          }} />
-        </div>
-      )}
+      {/* Pure white background — no orbs */}
 
       {/* ════════════════════════════════════════════════════════════════════
           SIDEBAR
@@ -373,10 +337,8 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           position:             "sticky",
           top:                  0,
           zIndex:               20,
-          background:           T.bgSidebar,
-          backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-          WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-          borderRight:          `1px solid ${T.borderSidebar}`,
+          background:  T.bgSidebar,
+          borderRight: `1px solid ${T.borderSidebar}`,
           display:              "flex",
           flexDirection:        "column",
           padding:              "20px 12px",
@@ -463,9 +425,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                   fontWeight:   active ? 600 : 400,
                   transition:   "all 0.18s cubic-bezier(0.16,1,0.3,1)",
                   fontFamily:   "inherit",
-                  boxShadow:    active
-                    ? (isLight ? "0 2px 10px rgba(142,22,22,0.10)" : "0 2px 12px rgba(142,22,22,0.10)")
-                    : "none",
+                  boxShadow:    "none",
                   position:     "relative",
                   width:        "100%",
                   textAlign:    "left",
@@ -662,13 +622,11 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           justifyContent:       "space-between",
           alignItems:           "flex-start",
           padding:              "22px 28px 18px",
-          background:           T.bgHeader,
-          backdropFilter:       isLight ? "blur(16px) saturate(1.6)" : "none",
-          WebkitBackdropFilter: isLight ? "blur(16px) saturate(1.6)" : "none",
-          borderBottom:         `1px solid ${T.borderHeader}`,
-          gap:                  16,
-          flexWrap:             "wrap",
-          boxShadow:            isLight ? "0 1px 10px rgba(0,0,0,0.04)" : "none",
+          background:  T.bgHeader,
+          borderBottom:`1px solid ${T.borderHeader}`,
+          gap:         16,
+          flexWrap:    "wrap",
+          boxShadow:   isLight ? "0 1px 6px rgba(0,0,0,0.04)" : "none",
           transition:           "background 0.25s ease",
         }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -770,14 +728,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Proxy ── */}
           {page === "addresses" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <AddressManagement />
             </div>
@@ -786,14 +742,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Employees ── */}
           {page === "employees" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <EmployeeManagement />
             </div>
@@ -809,14 +763,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Credentials ── */}
           {page === "credentials" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <CredentialsManagement />
             </div>
@@ -825,14 +777,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Tasks ── */}
           {page === "tasks" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <TasksManagement />
             </div>
@@ -841,14 +791,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Security ── */}
           {page === "security" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <SecuritySettings />
             </div>
@@ -857,14 +805,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Recovery ── */}
           {page === "recovery" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <RecoveryRequestsInbox />
             </div>
@@ -873,14 +819,12 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Workspace ── */}
           {page === "workspace" && (
             <div style={{
-              background:           T.bgCard,
-              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
-              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
-              border:               `1px solid ${T.borderCard}`,
-              borderRadius:         18,
-              overflow:             "hidden",
-              boxShadow:            T.shadowCard,
-              animation:            "fadeUp 0.28s ease both",
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
             }}>
               <WorkspacePage />
             </div>
