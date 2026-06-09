@@ -52,58 +52,58 @@ export interface ThemeTokens {
   colorAccent: string;
 }
 
-// ── Light theme — Pure white + Crimson #8e1616 ────────────────────────────────
+// ── Light theme — Clean white, glassmorphism, crimson accents ─────────────────
 export const light: ThemeTokens = {
-  bgApp:              "#fdfafa",
-  bgSidebar:          "#ffffff",
-  borderSidebar:      "rgba(142,22,22,0.09)",
+  bgApp:              "#ffffff",
+  bgSidebar:          "rgba(255,255,255,0.82)",
+  borderSidebar:      "rgba(0,0,0,0.06)",
   sidebarGlow:        "none",
-  shadowSidebar:      "2px 0 16px rgba(142,22,22,0.06)",
-  shadowSidebarHover: "2px 0 28px rgba(142,22,22,0.10)",
+  shadowSidebar:      "2px 0 20px rgba(0,0,0,0.06)",
+  shadowSidebarHover: "2px 0 32px rgba(0,0,0,0.10)",
 
   navActiveGrad:   "rgba(142,22,22,0.07)",
-  navActiveBorder: "rgba(142,22,22,0.18)",
+  navActiveBorder: "rgba(142,22,22,0.16)",
   navActiveColor:  "#8e1616",
-  navInactiveColor:"#c49090",
-  navSectionLabel: "#e8c8c8",
+  navInactiveColor:"#9999bb",
+  navSectionLabel: "#ccccdd",
 
-  textPrimary:   "#2d0a0a",
-  textSecondary: "#6b3030",
-  textMuted:     "#b07878",
-  textTertiary:  "#d8bcbc",
+  textPrimary:   "#1a1a2e",
+  textSecondary: "#444466",
+  textMuted:     "#8888aa",
+  textTertiary:  "#bbbbcc",
 
-  bgCard:     "#ffffff",
-  bgCardAlt:  "#fef8f8",
-  borderCard: "rgba(142,22,22,0.09)",
-  shadowCard: "0 2px 16px rgba(142,22,22,0.07), 0 1px 3px rgba(142,22,22,0.04)",
+  bgCard:     "rgba(255,255,255,0.72)",
+  bgCardAlt:  "rgba(255,255,255,0.90)",
+  borderCard: "rgba(0,0,0,0.06)",
+  shadowCard: "0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
 
-  bgHeader:    "#ffffff",
-  borderHeader:"rgba(142,22,22,0.08)",
+  bgHeader:    "rgba(255,255,255,0.85)",
+  borderHeader:"rgba(0,0,0,0.06)",
 
-  dividerGrad:  "linear-gradient(90deg, transparent, rgba(142,22,22,0.10), transparent)",
-  dividerSolid: "rgba(142,22,22,0.07)",
+  dividerGrad:  "linear-gradient(90deg, transparent, rgba(0,0,0,0.07), transparent)",
+  dividerSolid: "rgba(0,0,0,0.06)",
 
-  bgBtn:      "rgba(142,22,22,0.05)",
-  borderBtn:  "rgba(142,22,22,0.11)",
-  bgBtnHover: "rgba(142,22,22,0.08)",
+  bgBtn:      "rgba(0,0,0,0.04)",
+  borderBtn:  "rgba(0,0,0,0.08)",
+  bgBtnHover: "rgba(142,22,22,0.06)",
 
-  bgProfile:    "rgba(142,22,22,0.04)",
-  borderProfile:"rgba(142,22,22,0.10)",
+  bgProfile:    "rgba(0,0,0,0.03)",
+  borderProfile:"rgba(0,0,0,0.07)",
 
-  accentLine:"linear-gradient(90deg, #8e1616 0%, rgba(142,22,22,0.25) 55%, transparent 100%)",
+  accentLine:"linear-gradient(90deg, #8e1616 0%, rgba(142,22,22,0.18) 55%, transparent 100%)",
 
-  bgInput:    "#fdf8f8",
-  borderInput:"rgba(142,22,22,0.12)",
+  bgInput:    "rgba(255,255,255,0.90)",
+  borderInput:"rgba(0,0,0,0.09)",
 
-  bgTableHeader:      "rgba(142,22,22,0.03)",
+  bgTableHeader:      "rgba(0,0,0,0.025)",
   bgTableRow:         "transparent",
-  bgTableRowHover:    "rgba(142,22,22,0.025)",
+  bgTableRowHover:    "rgba(0,0,0,0.02)",
   bgTableRowSelected: "rgba(142,22,22,0.05)",
-  borderTableRow:     "rgba(142,22,22,0.06)",
+  borderTableRow:     "rgba(0,0,0,0.05)",
 
-  bgToggle:    "rgba(142,22,22,0.04)",
-  borderToggle:"rgba(142,22,22,0.11)",
-  colorToggle: "#b07878",
+  bgToggle:    "rgba(0,0,0,0.04)",
+  borderToggle:"rgba(0,0,0,0.08)",
+  colorToggle: "#9999bb",
 
   colorSuccess: "#059669",
   colorWarning: "#d97706",

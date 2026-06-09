@@ -20,14 +20,14 @@
   --brand-shadow:  rgba(142, 22, 22, 0.10);
 
   --bg:            #ffffff;
-  --bg-page:       #fdfafa;
-  --bg-card:       #ffffff;
-  --bg-input:      #fdf8f8;
+  --bg-page:       #ffffff;
+  --bg-card:       rgba(255,255,255,0.75);
+  --bg-input:      rgba(255,255,255,0.90);
 
-  --text-dark:     #2d0a0a;
-  --text-body:     #5a3030;
-  --text-muted:    #a07878;
-  --text-ghost:    #d4b8b8;
+  --text-dark:     #1a1a2e;
+  --text-body:     #444466;
+  --text-muted:    #8888aa;
+  --text-ghost:    #ccccdd;
 
   --border:        rgba(142, 22, 22, 0.11);
   --border-card:   rgba(142, 22, 22, 0.11);
@@ -53,7 +53,7 @@ html, body, #root {
   height: 100%;
   font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: var(--bg-page);
+  background: #ffffff;
   color: var(--text-dark);
   font-size: 14px;
   line-height: 1.65;

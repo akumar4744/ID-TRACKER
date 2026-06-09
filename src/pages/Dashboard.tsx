@@ -131,101 +131,61 @@ const LIGHT_CSS = `
     font-family: 'Sarabun', -apple-system, sans-serif !important;
   }
 
-  /* ── Force white backgrounds everywhere in child pages ── */
-  [data-theme="light"] [style*="background: rgba(13,16,34"],
-  [data-theme="light"] [style*="background:rgba(13,16,34"],
-  [data-theme="light"] [style*="background: #0d1022"],
-  [data-theme="light"] [style*="background:#0d1022"],
-  [data-theme="light"] [style*="background: #080a14"],
-  [data-theme="light"] [style*="background:#080a14"] {
-    background: #ffffff !important;
-    color: #2d0a0a !important;
-  }
-
   /* ── Inputs, selects, textareas ── */
   [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]) {
-    background:   #fdf8f8 !important;
-    color:        #2d0a0a !important;
-    border-color: rgba(142,22,22,0.14) !important;
+    background:   rgba(255,255,255,0.90) !important;
+    color:        #1a1a2e !important;
+    border-color: rgba(0,0,0,0.10) !important;
   }
-  [data-theme="light"] input::placeholder  { color: #d8bcbc !important; }
+  [data-theme="light"] input::placeholder  { color: #bbbbcc !important; }
   [data-theme="light"] select {
-    background:   #fdf8f8 !important;
-    color:        #2d0a0a !important;
-    border-color: rgba(142,22,22,0.14) !important;
+    background:   rgba(255,255,255,0.90) !important;
+    color:        #1a1a2e !important;
+    border-color: rgba(0,0,0,0.10) !important;
   }
-  [data-theme="light"] option  { background: #ffffff; color: #2d0a0a; }
+  [data-theme="light"] option  { background: #ffffff; color: #1a1a2e; }
   [data-theme="light"] textarea {
-    background:   #fdf8f8 !important;
-    color:        #2d0a0a !important;
-    border-color: rgba(142,22,22,0.14) !important;
+    background:   rgba(255,255,255,0.90) !important;
+    color:        #1a1a2e !important;
+    border-color: rgba(0,0,0,0.10) !important;
   }
-  [data-theme="light"] textarea::placeholder { color: #d8bcbc !important; }
+  [data-theme="light"] textarea::placeholder { color: #bbbbcc !important; }
 
   /* ── Scrollbars ── */
   [data-theme="light"] ::-webkit-scrollbar       { width: 4px; height: 4px; }
-  [data-theme="light"] ::-webkit-scrollbar-track { background: rgba(142,22,22,0.03); border-radius: 99px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.16); border-radius: 99px; }
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.30); }
+  [data-theme="light"] ::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(142,22,22,0.18); border-radius: 99px; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(142,22,22,0.32); }
 
   /* ── Code / mono ── */
-  [data-theme="light"] code { background: rgba(142,22,22,0.06) !important; color: #8e1616 !important; border-radius: 4px; padding: 1px 5px; }
-  [data-theme="light"] kbd  { background: rgba(142,22,22,0.06) !important; color: #8e1616 !important; border-color: rgba(142,22,22,0.15) !important; }
+  [data-theme="light"] code { background: rgba(0,0,0,0.05) !important; color: #8e1616 !important; border-radius: 4px; padding: 1px 5px; }
+  [data-theme="light"] kbd  { background: rgba(0,0,0,0.05) !important; color: #444466 !important; border-color: rgba(0,0,0,0.12) !important; }
 
   /* ── Table chrome ── */
-  [data-theme="light"] table { border-color: rgba(142,22,22,0.07) !important; }
+  [data-theme="light"] table { border-color: rgba(0,0,0,0.06) !important; }
   [data-theme="light"] th    {
-    background:    rgba(142,22,22,0.04) !important;
-    color:         #8e1616 !important;
-    border-color:  rgba(142,22,22,0.08) !important;
+    background:     rgba(0,0,0,0.025) !important;
+    color:          #8e1616 !important;
+    border-color:   rgba(0,0,0,0.07) !important;
     letter-spacing: 0.5px;
-    font-weight:   600;
+    font-weight:    600;
   }
   [data-theme="light"] td    {
-    border-color:  rgba(142,22,22,0.06) !important;
-    color:         #2d0a0a !important;
-    background:    transparent !important;
+    border-color: rgba(0,0,0,0.05) !important;
+    color:        #1a1a2e !important;
+    background:   transparent !important;
   }
-  [data-theme="light"] tr:hover td { background: rgba(142,22,22,0.025) !important; }
+  [data-theme="light"] tr:hover td { background: rgba(0,0,0,0.02) !important; }
 
   /* ── Focus rings ── */
-  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.40) !important; }
+  [data-theme="light"] *:focus-visible { outline-color: rgba(142,22,22,0.45) !important; }
 
-  /* ── Dark text that should be light ── */
-  [data-theme="light"] [style*="color: #eef0f8"],
-  [data-theme="light"] [style*="color:#eef0f8"] { color: #2d0a0a !important; }
-  [data-theme="light"] [style*="color: rgb(238,240,248)"] { color: #2d0a0a !important; }
-  [data-theme="light"] [style*="color: #8892b0"],
-  [data-theme="light"] [style*="color:#8892b0"] { color: #6b3030 !important; }
-  [data-theme="light"] [style*="color: #4a526e"],
-  [data-theme="light"] [style*="color:#4a526e"] { color: #b07878 !important; }
-
-  /* ── Remove any dark background from panels/modals ── */
-  [data-theme="light"] [style*="background: rgba(5,6,13"],
-  [data-theme="light"] [style*="background:rgba(5,6,13"] {
-    background: #ffffff !important;
-  }
-
-  /* ── Badges / chips ── */
-  [data-theme="light"] [style*="7c6cf8"] {
+  /* ── Badges / chips: replace purple with crimson ── */
+  [data-theme="light"] [style*="7c6cf8"],
+  [data-theme="light"] [style*="818cf8"] {
     color:        #8e1616 !important;
-    border-color: rgba(142,22,22,0.22) !important;
+    border-color: rgba(142,22,22,0.20) !important;
     background:   rgba(142,22,22,0.06) !important;
-  }
-
-  /* ── Buttons: ensure no purple ── */
-  [data-theme="light"] button[style*="7c6cf8"],
-  [data-theme="light"] button[style*="124,108,248"] {
-    background: linear-gradient(135deg, #8e1616 0%, #6b1010 100%) !important;
-    box-shadow: 0 4px 16px rgba(142,22,22,0.28) !important;
-  }
-
-  /* ── Generic white panels for child pages ── */
-  [data-theme="light"] .admin-page-panel {
-    background:    #ffffff !important;
-    border:        1px solid rgba(142,22,22,0.09) !important;
-    border-radius: 18px !important;
-    box-shadow:    0 2px 16px rgba(142,22,22,0.07) !important;
   }
 `;
 
@@ -279,19 +239,19 @@ function patchLightEl(el: HTMLElement) {
   const bdc = s.borderColor.trim();
 
   // Dark backgrounds → white
-  if (bg  && (DARK_BG_RE.test(bg)  || DARK_HEX_BG.test(bg)))  s.background     = "#ffffff";
+  if (bg  && (DARK_BG_RE.test(bg)  || DARK_HEX_BG.test(bg)))  s.background      = "#ffffff";
   if (bgc && (DARK_BG_RE.test(bgc) || DARK_HEX_BG.test(bgc))) s.backgroundColor = "#ffffff";
-  // Purple/indigo backgrounds → crimson tint
-  if (bg  && PURPLE_BG.test(bg))   s.background     = "rgba(142,22,22,0.06)";
-  if (bgc && PURPLE_BG.test(bgc))  s.backgroundColor = "rgba(142,22,22,0.06)";
+  // Purple/indigo backgrounds → neutral light tint
+  if (bg  && PURPLE_BG.test(bg))   s.background      = "rgba(0,0,0,0.04)";
+  if (bgc && PURPLE_BG.test(bgc))  s.backgroundColor = "rgba(0,0,0,0.04)";
 
   // Text color patches
-  if (col && DARK_TEXT_RE.test(col))  s.color = "#2d0a0a";
+  if (col && DARK_TEXT_RE.test(col))  s.color = "#1a1a2e";
   if (col && PURPLE_TEXT.test(col))   s.color = "#8e1616";
-  if (col && DARK_MUTED.test(col))    s.color = "#b07878";
+  if (col && DARK_MUTED.test(col))    s.color = "#8888aa";
 
-  // Border patches
-  if (bdc && WHITE_BDR.test(bdc))   s.borderColor = "rgba(142,22,22,0.12)";
+  // Border patches: low-opacity white borders → neutral light
+  if (bdc && WHITE_BDR.test(bdc))   s.borderColor = "rgba(0,0,0,0.09)";
 }
 
 // ── Inner dashboard ───────────────────────────────────────────────────────────
@@ -362,7 +322,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
     >
 
       {/* ════════════════════════════════════════════════════════════════════
-          BACKGROUND ORBS — decorative blurred crimson circles
+          BACKGROUND — subtle hint orbs so glassmorphism has texture to blur
       ════════════════════════════════════════════════════════════════════ */}
       {isLight && (
         <div style={{
@@ -371,55 +331,31 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           pointerEvents: "none",
           zIndex:        0,
           overflow:      "hidden",
+          background:    "#ffffff",
         }}>
-          {/* Top-right large orb */}
+          {/* Very subtle top-right crimson hint */}
           <div style={{
             position:     "absolute",
-            top:          -120,
-            right:        -80,
-            width:        480,
-            height:       480,
+            top:          -160,
+            right:        -100,
+            width:        560,
+            height:       560,
             borderRadius: "50%",
-            background:   "rgba(142,22,22,0.07)",
-            filter:       "blur(90px)",
-            animation:    "orbFloat 12s ease-in-out infinite",
+            background:   "rgba(142,22,22,0.04)",
+            filter:       "blur(110px)",
+            animation:    "orbFloat 14s ease-in-out infinite",
           }} />
-          {/* Bottom-left medium orb */}
+          {/* Very subtle bottom-left hint */}
           <div style={{
             position:     "absolute",
-            bottom:       -60,
-            left:         60,
-            width:        360,
-            height:       360,
+            bottom:       -80,
+            left:         -40,
+            width:        420,
+            height:       420,
             borderRadius: "50%",
-            background:   "rgba(142,22,22,0.06)",
-            filter:       "blur(80px)",
-            animation:    "orbFloat 15s ease-in-out infinite reverse",
-          }} />
-          {/* Center small accent orb */}
-          <div style={{
-            position:     "absolute",
-            top:          "40%",
-            left:         "50%",
-            transform:    "translate(-50%,-50%)",
-            width:        280,
-            height:       280,
-            borderRadius: "50%",
-            background:   "rgba(142,22,22,0.035)",
-            filter:       "blur(70px)",
-            animation:    "orbFloat 18s ease-in-out infinite",
-          }} />
-          {/* Bottom-right small orb */}
-          <div style={{
-            position:     "absolute",
-            bottom:       100,
-            right:        120,
-            width:        200,
-            height:       200,
-            borderRadius: "50%",
-            background:   "rgba(142,22,22,0.05)",
-            filter:       "blur(60px)",
-            animation:    "orbFloat 10s ease-in-out infinite 3s",
+            background:   "rgba(142,22,22,0.03)",
+            filter:       "blur(100px)",
+            animation:    "orbFloat 18s ease-in-out infinite reverse",
           }} />
         </div>
       )}
@@ -431,21 +367,23 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
         onMouseEnter={() => setSidebarHover(true)}
         onMouseLeave={() => setSidebarHover(false)}
         style={{
-          width:         240,
-          height:        "100vh",
-          overflowY:     "auto",
-          position:      "sticky",
-          top:           0,
-          zIndex:        20,
-          background:    T.bgSidebar,
-          borderRight:   `1px solid ${T.borderSidebar}`,
-          display:       "flex",
-          flexDirection: "column",
-          padding:       "20px 12px",
-          flexShrink:    0,
-          gap:           6,
-          boxShadow:     sidebarHover ? T.shadowSidebarHover : T.shadowSidebar,
-          transition:    "box-shadow 0.35s ease",
+          width:                240,
+          height:               "100vh",
+          overflowY:            "auto",
+          position:             "sticky",
+          top:                  0,
+          zIndex:               20,
+          background:           T.bgSidebar,
+          backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+          WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+          borderRight:          `1px solid ${T.borderSidebar}`,
+          display:              "flex",
+          flexDirection:        "column",
+          padding:              "20px 12px",
+          flexShrink:           0,
+          gap:                  6,
+          boxShadow:            sidebarHover ? T.shadowSidebarHover : T.shadowSidebar,
+          transition:           "box-shadow 0.35s ease, background 0.25s ease",
         }}
       >
 
@@ -720,16 +658,18 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
 
         {/* ── Page header ── */}
         <div style={{
-          display:        "flex",
-          justifyContent: "space-between",
-          alignItems:     "flex-start",
-          padding:        "22px 28px 18px",
-          background:     T.bgHeader,
-          borderBottom:   `1px solid ${T.borderHeader}`,
-          gap:            16,
-          flexWrap:       "wrap",
-          boxShadow:      isLight ? "0 1px 8px rgba(142,22,22,0.05)" : "none",
-          transition:     "background 0.25s ease",
+          display:              "flex",
+          justifyContent:       "space-between",
+          alignItems:           "flex-start",
+          padding:              "22px 28px 18px",
+          background:           T.bgHeader,
+          backdropFilter:       isLight ? "blur(16px) saturate(1.6)" : "none",
+          WebkitBackdropFilter: isLight ? "blur(16px) saturate(1.6)" : "none",
+          borderBottom:         `1px solid ${T.borderHeader}`,
+          gap:                  16,
+          flexWrap:             "wrap",
+          boxShadow:            isLight ? "0 1px 10px rgba(0,0,0,0.04)" : "none",
+          transition:           "background 0.25s ease",
         }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <h1 style={{
@@ -830,12 +770,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Proxy ── */}
           {page === "addresses" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <AddressManagement />
             </div>
@@ -844,12 +786,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Employees ── */}
           {page === "employees" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <EmployeeManagement />
             </div>
@@ -865,12 +809,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Credentials ── */}
           {page === "credentials" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <CredentialsManagement />
             </div>
@@ -879,12 +825,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Tasks ── */}
           {page === "tasks" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <TasksManagement />
             </div>
@@ -893,12 +841,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Security ── */}
           {page === "security" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <SecuritySettings />
             </div>
@@ -907,12 +857,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Recovery ── */}
           {page === "recovery" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <RecoveryRequestsInbox />
             </div>
@@ -921,12 +873,14 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
           {/* ── Workspace ── */}
           {page === "workspace" && (
             <div style={{
-              background:   T.bgCard,
-              border:       `1px solid ${T.borderCard}`,
-              borderRadius: 18,
-              overflow:     "hidden",
-              boxShadow:    T.shadowCard,
-              animation:    "fadeUp 0.28s ease both",
+              background:           T.bgCard,
+              backdropFilter:       isLight ? "blur(20px) saturate(1.8)" : "none",
+              WebkitBackdropFilter: isLight ? "blur(20px) saturate(1.8)" : "none",
+              border:               `1px solid ${T.borderCard}`,
+              borderRadius:         18,
+              overflow:             "hidden",
+              boxShadow:            T.shadowCard,
+              animation:            "fadeUp 0.28s ease both",
             }}>
               <WorkspacePage />
             </div>
