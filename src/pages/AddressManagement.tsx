@@ -1601,7 +1601,6 @@ export default function AddressManagement() {
 
                     {/* IP count badge */}
                     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.18)", borderRadius: 8 }}>
-                      <span style={{ fontSize: 18 }}>🌐</span>
                       <span style={{ color: "#38bdf8", fontWeight: 700, fontSize: 13 }}>{selected.size}</span>
                       <span style={{ color: T.textMuted, fontSize: 12 }}>proxy IP{selected.size !== 1 ? "s" : ""} selected for assignment</span>
                     </div>
@@ -1627,7 +1626,6 @@ export default function AddressManagement() {
                       {(["pick_cache", "pick_keywords", "pick_smartlink"] as const).map((stepKey) => {
                         const info = pickerMeta[stepKey];
                         const label = stepKey === "pick_cache" ? "Cache" : stepKey === "pick_keywords" ? "Keywords" : "Smartlink";
-                        const icon  = stepKey === "pick_cache" ? "🗄️" : stepKey === "pick_keywords" ? "🔑" : "🔗";
                         const pool  = stepKey === "pick_cache" ? cachePool : stepKey === "pick_keywords" ? kwPool : slPool;
                         const hasVal = !!info.stateVal.trim();
 
@@ -1638,7 +1636,6 @@ export default function AddressManagement() {
                             borderBottom: "1px solid rgba(255,255,255,0.04)",
                             background: hasVal ? "rgba(34,197,94,0.04)" : "transparent",
                           }}>
-                            <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ color: T.textSecondary, fontSize: 11, fontWeight: 600 }}>{label}</div>
                               {hasVal ? (
@@ -1690,7 +1687,7 @@ export default function AddressManagement() {
 
                     {(assignCache || assignKeywords || assignSmartlink) && (
                       <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.14)", borderRadius: 7, padding: "7px 10px", fontSize: 10.5, color: "#8e1616" }}>
-                        🔒 Selected resources will be <strong>locked</strong> to these IPs — cannot be reused with any other IP.
+                        Selected resources will be <strong>locked</strong> to these IPs — cannot be reused with any other IP.
                       </div>
                     )}
 
