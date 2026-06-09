@@ -13,6 +13,7 @@ import TasksManagement from "./TasksManagement";
 import SecuritySettings from "./SecuritySettings";
 import RecoveryRequestsInbox from "./RecoveryRequestsInbox";
 import WorkspacePage from "./WorkspacePage";
+import ResourceManagement from "./ResourceManagement";
 import { signOut } from "../lib/auth";
 import type { UserProfile } from "../lib/auth";
 import { ThemeCtx, getT } from "../lib/theme";
@@ -20,7 +21,7 @@ import type { Theme } from "../lib/theme";
 
 export { ThemeCtx };
 
-type NavPage = "records" | "addresses" | "employees" | "live" | "credentials" | "tasks" | "security" | "recovery" | "workspace";
+type NavPage = "records" | "addresses" | "employees" | "live" | "credentials" | "tasks" | "security" | "recovery" | "workspace" | "cache" | "keywords" | "smartlink";
 
 interface DashboardProps {
   onLogout: () => void;
@@ -119,6 +120,33 @@ const NAV_ITEMS: { page: NavPage; label: string; icon: React.ReactNode }[] = [
         <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
         <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" strokeWidth="1.5" />
         <line x1="9" y1="4" x2="9" y2="9" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    page: "cache", label: "Cache",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3 5v5c0 1.657 4.03 3 9 3s9-1.343 9-3V5" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3 10v5c0 1.657 4.03 3 9 3s9-1.343 9-3v-5" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    page: "keywords", label: "Keywords",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16M4 10h10M4 14h12M4 18h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "smartlink", label: "Smartlink",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -249,7 +277,7 @@ function patchLightEl(el: HTMLElement) {
   // Text color patches
   if (col && DARK_TEXT_RE.test(col))  s.color = "#1a1a2e";
   if (col && PURPLE_TEXT.test(col))   s.color = "#8e1616";
-  if (col && DARK_MUTED.test(col))    s.color = "#8888aa";
+  if (col && DARK_MUTED.test(col))    s.color = "#111111";
 
   // Border patches: low-opacity white borders → neutral light
   if (bdc && WHITE_BDR.test(bdc))   s.borderColor = "rgba(0,0,0,0.09)";
@@ -302,6 +330,9 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
     security:    { title: "Security",     subtitle: "Manage two-factor authentication and recovery codes." },
     recovery:    { title: "Recovery",     subtitle: "Review and approve emergency account-recovery requests." },
     workspace:   { title: "Workspace",    subtitle: "Your private space — notes and an encrypted vault only you can read." },
+    cache:       { title: "Cache",        subtitle: "Upload and manage your cache value pool. Assign to proxy IPs during the assignment workflow." },
+    keywords:    { title: "Keywords",     subtitle: "Upload and manage keyword sets. Assign to proxy IPs during the assignment workflow." },
+    smartlink:   { title: "Smartlink",    subtitle: "Upload and manage smartlinks. Assign to proxy IPs during the assignment workflow." },
   };
 
   const initials = (profile.full_name || profile.email)[0].toUpperCase();
@@ -827,6 +858,48 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
               animation:    "fadeUp 0.28s ease both",
             }}>
               <WorkspacePage />
+            </div>
+          )}
+
+          {/* ── Cache ── */}
+          {page === "cache" && (
+            <div style={{
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
+            }}>
+              <ResourceManagement resourceType="cache" />
+            </div>
+          )}
+
+          {/* ── Keywords ── */}
+          {page === "keywords" && (
+            <div style={{
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
+            }}>
+              <ResourceManagement resourceType="keywords" />
+            </div>
+          )}
+
+          {/* ── Smartlink ── */}
+          {page === "smartlink" && (
+            <div style={{
+              background:   "#ffffff",
+              border:       "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 14,
+              overflow:     "hidden",
+              boxShadow:    "0 1px 4px rgba(0,0,0,0.05)",
+              animation:    "fadeUp 0.28s ease both",
+            }}>
+              <ResourceManagement resourceType="smartlink" />
             </div>
           )}
         </div>

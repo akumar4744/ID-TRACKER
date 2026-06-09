@@ -42,6 +42,19 @@ interface Employee {
   status:    string;
 }
 
+// ── Resource picker types ─────────────────────────────────────────────────────
+interface ResourcePickerItem {
+  id:    string;
+  value: string;
+  notes: string | null;
+}
+
+type AssignStep =
+  | "main"
+  | "pick_cache"
+  | "pick_keywords"
+  | "pick_smartlink";
+
 type FilterTab  = "all" | "unassigned" | "assigned";
 type AddPanel   = "none" | "single" | "bulk";
 type MainView   = "table" | "work";
@@ -152,12 +165,25 @@ export default function AddressManagement() {
   const [showAssign,    setShowAssign]    = useState(false);
   const [assignTo,        setAssignTo]        = useState("");
   const [assignCategory,  setAssignCategory]  = useState("");
-  const [assignCache,     setAssignCache]     = useState("");
-  const [assignKeywords,  setAssignKeywords]  = useState("");
-  const [assignSmartlink, setAssignSmartlink] = useState("");
+  const [assignCache,     setAssignCache]     = useState("");    // confirmed cache value
+  const [assignKeywords,  setAssignKeywords]  = useState("");    // confirmed keywords value
+  const [assignSmartlink, setAssignSmartlink] = useState("");    // confirmed smartlink value
   const [assigning,       setAssigning]       = useState(false);
   const [assignMsg,       setAssignMsg]       = useState("");
   const [assignErr,       setAssignErr]       = useState("");
+
+  // Stepped resource picker state
+  const [assignStep,    setAssignStep]    = useState<AssignStep>("main");
+  const [cachePool,     setCachePool]     = useState<ResourcePickerItem[]>([]);
+  const [kwPool,        setKwPool]        = useState<ResourcePickerItem[]>([]);
+  const [slPool,        setSlPool]        = useState<ResourcePickerItem[]>([]);
+  const [resFetching,   setResFetching]   = useState(false);
+  const [selCacheId,    setSelCacheId]    = useState("");   // locked resource item ID
+  const [selKwId,       setSelKwId]       = useState("");
+  const [selSlId,       setSelSlId]       = useState("");
+  const [pickerSearch,  setPickerSearch]  = useState("");
+  const [pickerTempId,  setPickerTempId]  = useState("");   // temp selection inside picker
+  const [pickerTempVal, setPickerTempVal] = useState("");
 
   // Delete
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -564,11 +590,20 @@ export default function AddressManagement() {
       }).eq("employee_id", assignTo).in("address_id", selectedIds);
     }
 
+    // Lock selected resource items to these IPs (mark as assigned)
+    const idsToLock = [selCacheId, selKwId, selSlId].filter(Boolean);
+    if (idsToLock.length > 0) {
+      const firstAddr = (virtualMode ? allRows : addresses)
+        .find((a) => selectedIds.includes(a.id))?.address ?? null;
+      await supabase.from("resource_items")
+        .update({ is_assigned: true, assigned_ip: firstAddr, assigned_at: new Date().toISOString() })
+        .in("id", idsToLock);
+    }
+
     setAssigning(false);
     setAssignMsg(`✅ ${result.assigned} address${result.assigned !== 1 ? "es" : ""} assigned.`);
     setSelected(new Set()); setShowAssign(false);
-    setAssignTo(""); setAssignCategory("");
-    setAssignCache(""); setAssignKeywords(""); setAssignSmartlink("");
+    resetAssignState();
     // In virtual mode refresh allRows so assignment + category update immediately.
     // Use the `selectedIds` snapshot — `selected` was cleared above.
     if (virtualMode) {
@@ -582,6 +617,42 @@ export default function AddressManagement() {
       }
     }
     pageCache.current.clear(); await fetchAll(page, true);
+  }
+
+  // ── Fetch resource pools for picker ──────────────────────────────────────
+  async function fetchResourceItems() {
+    setResFetching(true);
+    const [cR, kR, sR] = await Promise.all([
+      supabase.from("resource_items")
+        .select("id, value, notes")
+        .eq("type", "cache")
+        .eq("is_assigned", false)
+        .order("created_at", { ascending: false }),
+      supabase.from("resource_items")
+        .select("id, value, notes")
+        .eq("type", "keywords")
+        .eq("is_assigned", false)
+        .order("created_at", { ascending: false }),
+      supabase.from("resource_items")
+        .select("id, value, notes")
+        .eq("type", "smartlink")
+        .eq("is_assigned", false)
+        .order("created_at", { ascending: false }),
+    ]);
+    setCachePool((cR.data ?? []) as ResourcePickerItem[]);
+    setKwPool((kR.data   ?? []) as ResourcePickerItem[]);
+    setSlPool((sR.data   ?? []) as ResourcePickerItem[]);
+    setResFetching(false);
+  }
+
+  // ── Reset all assign modal state ──────────────────────────────────────────
+  function resetAssignState() {
+    setAssignTo(""); setAssignCategory("");
+    setAssignCache(""); setAssignKeywords(""); setAssignSmartlink("");
+    setAssignStep("main");
+    setSelCacheId(""); setSelKwId(""); setSelSlId("");
+    setPickerSearch(""); setPickerTempId(""); setPickerTempVal("");
+    setAssignErr(""); setAssignMsg("");
   }
 
   // ── Delete ────────────────────────────────────────────────────────────────
@@ -709,7 +780,7 @@ export default function AddressManagement() {
             <>
               {selected.size > 0 && (
                 <>
-                  <button style={S.assignBtn} onClick={() => { setShowAssign(true); setAssignErr(""); setAssignMsg(""); setAssignCategory(""); }}>
+                  <button style={S.assignBtn} onClick={() => { resetAssignState(); setShowAssign(true); fetchResourceItems(); }}>
                     Assign {selected.size} →
                   </button>
                   <button style={S.hideSelectedBtn} onClick={hideSelectedTableRows} title="Remove from view only — stays in database">
@@ -1450,87 +1521,296 @@ export default function AddressManagement() {
         </div>
       )}
 
-      {/* Assign modal */}
-      {showAssign && (
-        <div style={S.modalOverlay}>
-          <div style={{ ...S.modal, background: T.bgCardAlt, border: `1px solid ${T.borderCard}` }}>
-            <div style={{ ...S.modalHeader, borderBottom: `1px solid ${T.dividerSolid}` }}>
-              <span style={{ ...S.modalTitle, color: T.textPrimary }}>
-                Assign {selected.size} Address{selected.size !== 1 ? "es" : ""}
-              </span>
-              <button style={{ ...S.closeBtn, color: T.textMuted }} onClick={() => { setShowAssign(false); setAssignCategory(""); setAssignCache(""); setAssignKeywords(""); setAssignSmartlink(""); }}>✕</button>
-            </div>
-            <div style={S.modalBody}>
-              {Array.from(selected).some((id) => (virtualMode ? allRows : addresses).find((a) => a.id === id)?.is_assigned) && (
-                <div style={S.reassignWarn}>
-                  ⚠ Some selected proxies are already assigned. Confirming will <strong>reassign</strong> them.
+      {/* ══════ Assign modal — stepped wizard ══════ */}
+      {showAssign && (() => {
+        // ── Picker helper ──────────────────────────────────────────────────
+        const pickerMeta: Record<"pick_cache"|"pick_keywords"|"pick_smartlink", {
+          title: string; pool: ResourcePickerItem[]; stateVal: string;
+          onConfirm: (id: string, val: string) => void; onClear: () => void;
+        }> = {
+          pick_cache: {
+            title: "Select Cache",
+            pool:  cachePool,
+            stateVal: assignCache,
+            onConfirm: (id, val) => { setAssignCache(val); setSelCacheId(id); setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); },
+            onClear:   ()       => { setAssignCache(""); setSelCacheId(""); setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); },
+          },
+          pick_keywords: {
+            title: "Select Keywords",
+            pool:  kwPool,
+            stateVal: assignKeywords,
+            onConfirm: (id, val) => { setAssignKeywords(val); setSelKwId(id); setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); },
+            onClear:   ()       => { setAssignKeywords(""); setSelKwId(""); setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); },
+          },
+          pick_smartlink: {
+            title: "Select Smartlink",
+            pool:  slPool,
+            stateVal: assignSmartlink,
+            onConfirm: (id, val) => { setAssignSmartlink(val); setSelSlId(id); setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); },
+            onClear:   ()       => { setAssignSmartlink(""); setSelSlId(""); setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); },
+          },
+        };
+
+        const isPicker = assignStep !== "main";
+        const pm = isPicker ? pickerMeta[assignStep as keyof typeof pickerMeta] : null;
+
+        const filteredPool = pm
+          ? pm.pool.filter((item) => {
+              const q = pickerSearch.trim().toLowerCase();
+              return q === "" || item.value.toLowerCase().includes(q) || (item.notes?.toLowerCase().includes(q) ?? false);
+            })
+          : [];
+
+        return (
+          <div style={S.modalOverlay}>
+            <div style={{
+              ...S.modal,
+              background: T.bgCardAlt, border: `1px solid ${T.borderCard}`,
+              maxWidth: 520,
+              maxHeight: "88vh",
+              display: "flex", flexDirection: "column",
+            }}>
+
+              {/* ── Modal header ── */}
+              <div style={{ ...S.modalHeader, borderBottom: `1px solid ${T.dividerSolid}`, flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {isPicker && (
+                    <button
+                      style={{ background: "none", border: "none", cursor: "pointer", color: T.textMuted, padding: "2px 6px 2px 0", fontSize: 14, display: "flex", alignItems: "center", gap: 4, fontFamily: "inherit" }}
+                      onClick={() => { setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); }}
+                    >
+                      ← Back
+                    </button>
+                  )}
+                  <span style={{ ...S.modalTitle, color: T.textPrimary }}>
+                    {isPicker ? pm!.title : `Assign ${selected.size} Proxy IP${selected.size !== 1 ? "s" : ""}`}
+                  </span>
                 </div>
-              )}
-              <label style={{ ...S.label, color: T.textMuted }}>Category (optional)</label>
-              <input
-                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
-                value={assignCategory}
-                onChange={(e) => setAssignCategory(e.target.value)}
-                placeholder="e.g. US Residential, Datacenter, Social…"
-                autoComplete="off"
-              />
-              {/* ── Cache, Keywords, Smartlink — locked to IP once set ── */}
-              <label style={{ ...S.label, color: T.textMuted, marginTop: 4 }}>Cache (optional)</label>
-              <input
-                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
-                value={assignCache}
-                onChange={(e) => setAssignCache(e.target.value)}
-                placeholder="Cache value for this IP…"
-                autoComplete="off"
-              />
-              <label style={{ ...S.label, color: T.textMuted }}>Keywords (optional)</label>
-              <input
-                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
-                value={assignKeywords}
-                onChange={(e) => setAssignKeywords(e.target.value)}
-                placeholder="Keywords for this IP…"
-                autoComplete="off"
-              />
-              <label style={{ ...S.label, color: T.textMuted }}>Smartlink (optional)</label>
-              <input
-                style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }}
-                value={assignSmartlink}
-                onChange={(e) => setAssignSmartlink(e.target.value)}
-                placeholder="Smartlink URL or identifier…"
-                autoComplete="off"
-              />
-              {(assignCache.trim() || assignKeywords.trim() || assignSmartlink.trim()) && (
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.14)",
-                  borderRadius: 7, padding: "7px 10px", fontSize: 10.5, color: "#8e1616",
-                }}>
-                  🔒 These values will be <strong>locked</strong> to the selected IPs and cannot be changed via reassignment.
-                </div>
+                <button style={{ ...S.closeBtn, color: T.textMuted }} onClick={() => { setShowAssign(false); resetAssignState(); }}>✕</button>
+              </div>
+
+              {/* ══════ MAIN STEP ══════ */}
+              {assignStep === "main" && (
+                <>
+                  <div style={{ ...S.modalBody, overflowY: "auto", flex: 1 }}>
+                    {Array.from(selected).some((id) => (virtualMode ? allRows : addresses).find((a) => a.id === id)?.is_assigned) && (
+                      <div style={S.reassignWarn}>
+                        ⚠ Some selected proxies are already assigned. Confirming will <strong>reassign</strong> them.
+                      </div>
+                    )}
+
+                    {/* IP count badge */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.18)", borderRadius: 8 }}>
+                      <span style={{ fontSize: 18 }}>🌐</span>
+                      <span style={{ color: "#38bdf8", fontWeight: 700, fontSize: 13 }}>{selected.size}</span>
+                      <span style={{ color: T.textMuted, fontSize: 12 }}>proxy IP{selected.size !== 1 ? "s" : ""} selected for assignment</span>
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                      <label style={{ ...S.label, color: T.textMuted }}>Category (optional)</label>
+                      <input
+                        style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary, width: "100%", marginTop: 4 }}
+                        value={assignCategory}
+                        onChange={(e) => setAssignCategory(e.target.value)}
+                        placeholder="e.g. US Residential, Datacenter…"
+                        autoComplete="off"
+                      />
+                    </div>
+
+                    {/* ── Resource selectors ── */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                      <div style={{ color: T.textMuted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600, marginBottom: 8 }}>
+                        Linked Resources (optional — locked to IP once assigned)
+                      </div>
+
+                      {(["pick_cache", "pick_keywords", "pick_smartlink"] as const).map((stepKey) => {
+                        const info = pickerMeta[stepKey];
+                        const label = stepKey === "pick_cache" ? "Cache" : stepKey === "pick_keywords" ? "Keywords" : "Smartlink";
+                        const icon  = stepKey === "pick_cache" ? "🗄️" : stepKey === "pick_keywords" ? "🔑" : "🔗";
+                        const pool  = stepKey === "pick_cache" ? cachePool : stepKey === "pick_keywords" ? kwPool : slPool;
+                        const hasVal = !!info.stateVal.trim();
+
+                        return (
+                          <div key={stepKey} style={{
+                            display: "flex", alignItems: "center", gap: 10,
+                            padding: "10px 12px",
+                            borderBottom: "1px solid rgba(255,255,255,0.04)",
+                            background: hasVal ? "rgba(34,197,94,0.04)" : "transparent",
+                          }}>
+                            <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ color: T.textSecondary, fontSize: 11, fontWeight: 600 }}>{label}</div>
+                              {hasVal ? (
+                                <div style={{ color: "#22c55e", fontSize: 11, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                  ✓ {info.stateVal}
+                                </div>
+                              ) : (
+                                <div style={{ color: T.textMuted, fontSize: 10.5, marginTop: 1 }}>
+                                  {resFetching ? "Loading pool…" : pool.length === 0 ? "No items available — upload first" : `${pool.length} item${pool.length !== 1 ? "s" : ""} available`}
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                              {hasVal && (
+                                <button
+                                  onClick={info.onClear}
+                                  style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 5, color: "#ef4444", fontSize: 10, padding: "4px 8px", cursor: "pointer", fontFamily: "inherit" }}
+                                >
+                                  ✕ Clear
+                                </button>
+                              )}
+                              <button
+                                disabled={resFetching || pool.length === 0}
+                                onClick={() => {
+                                  setPickerSearch("");
+                                  setPickerTempId(
+                                    stepKey === "pick_cache" ? selCacheId :
+                                    stepKey === "pick_keywords" ? selKwId : selSlId
+                                  );
+                                  setPickerTempVal(info.stateVal);
+                                  setAssignStep(stepKey);
+                                }}
+                                style={{
+                                  background: resFetching || pool.length === 0 ? "rgba(255,255,255,0.03)" : "rgba(56,189,248,0.1)",
+                                  border: `1px solid ${resFetching || pool.length === 0 ? "rgba(255,255,255,0.08)" : "rgba(56,189,248,0.25)"}`,
+                                  borderRadius: 5, color: resFetching || pool.length === 0 ? T.textMuted : "#38bdf8",
+                                  fontSize: 10, fontWeight: 600, padding: "4px 10px",
+                                  cursor: resFetching || pool.length === 0 ? "not-allowed" : "pointer",
+                                  fontFamily: "inherit",
+                                }}
+                              >
+                                {hasVal ? "Change →" : "Select →"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {(assignCache || assignKeywords || assignSmartlink) && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.14)", borderRadius: 7, padding: "7px 10px", fontSize: 10.5, color: "#8e1616" }}>
+                        🔒 Selected resources will be <strong>locked</strong> to these IPs — cannot be reused with any other IP.
+                      </div>
+                    )}
+
+                    {/* Employee */}
+                    <div>
+                      <label style={{ ...S.label, color: T.textMuted, marginBottom: 4 }}>Assign to Employee</label>
+                      <select
+                        style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary, width: "100%", marginTop: 4 }}
+                        value={assignTo}
+                        onChange={(e) => setAssignTo(e.target.value)}
+                      >
+                        <option value="">— Select employee —</option>
+                        {employees.filter((e) => e.status === "active").map((e) => (
+                          <option key={e.id} value={e.id}>{e.full_name || e.email}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {assignErr && <div style={S.errorBox}>⚠ {assignErr}</div>}
+                  </div>
+
+                  <div style={{ ...S.modalFooter, borderTop: `1px solid ${T.dividerSolid}`, flexShrink: 0 }}>
+                    <button style={{ ...S.cancelBtn, background: T.bgBtn, border: `1px solid ${T.borderBtn}`, color: T.textSecondary }} onClick={() => { setShowAssign(false); resetAssignState(); }}>Cancel</button>
+                    <button style={assigning ? S.submitBtnDisabled : S.submitBtn} onClick={handleAssign} disabled={assigning}>
+                      {assigning ? "Assigning…" : "Confirm Assign"}
+                    </button>
+                  </div>
+                </>
               )}
 
-              <label style={{ ...S.label, color: T.textMuted, marginTop: 4 }}>Assign to Employee</label>
-              <select style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary }} value={assignTo} onChange={(e) => setAssignTo(e.target.value)}>
-                <option value="">— Select employee —</option>
-                {employees.filter((e) => e.status === "active").map((e) => (
-                  <option key={e.id} value={e.id}>{e.full_name || e.email}</option>
-                ))}
-              </select>
-              {assignErr && <div style={S.errorBox}>⚠ {assignErr}</div>}
-            </div>
-            <div style={{ ...S.modalFooter, borderTop: `1px solid ${T.dividerSolid}` }}>
-              <button style={{ ...S.cancelBtn, background: T.bgBtn, border: `1px solid ${T.borderBtn}`, color: T.textSecondary }} onClick={() => { setShowAssign(false); setAssignCache(""); setAssignKeywords(""); setAssignSmartlink(""); }}>Cancel</button>
-              <button
-                style={assigning ? S.submitBtnDisabled : S.submitBtn}
-                onClick={handleAssign}
-                disabled={assigning}
-              >
-                {assigning ? "Assigning…" : "Confirm Assign"}
-              </button>
+              {/* ══════ PICKER STEP ══════ */}
+              {isPicker && pm && (
+                <>
+                  {/* Search */}
+                  <div style={{ padding: "10px 16px", borderBottom: `1px solid ${T.dividerSolid}`, flexShrink: 0 }}>
+                    <input
+                      autoFocus
+                      style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary, width: "100%", boxSizing: "border-box" as const }}
+                      value={pickerSearch}
+                      onChange={(e) => setPickerSearch(e.target.value)}
+                      placeholder={`Search ${pm.title.toLowerCase().replace("select ", "")}…`}
+                    />
+                  </div>
+
+                  {/* Item list */}
+                  <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
+                    {filteredPool.length === 0 ? (
+                      <div style={{ color: T.textMuted, padding: "24px 16px", textAlign: "center", fontSize: 12 }}>
+                        {pickerSearch ? `No results for "${pickerSearch}"` : `No unassigned items found. Upload some from the ${pm.title.replace("Select ", "")} page first.`}
+                      </div>
+                    ) : (
+                      filteredPool.map((item) => {
+                        const isSel = pickerTempId === item.id;
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => { setPickerTempId(item.id); setPickerTempVal(item.value); }}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 12,
+                              padding: "10px 16px", cursor: "pointer",
+                              background: isSel
+                                ? "rgba(56,189,248,0.08)"
+                                : "transparent",
+                              borderLeft: `3px solid ${isSel ? "#38bdf8" : "transparent"}`,
+                              transition: "background 0.12s ease",
+                            }}
+                            onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                            onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}
+                          >
+                            {/* Radio dot */}
+                            <div style={{
+                              width: 16, height: 16, borderRadius: "50%",
+                              border: `2px solid ${isSel ? "#38bdf8" : "rgba(255,255,255,0.2)"}`,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              flexShrink: 0, transition: "border-color 0.12s",
+                            }}>
+                              {isSel && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#38bdf8" }} />}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ color: T.textPrimary, fontSize: 12, fontWeight: isSel ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                {item.value}
+                              </div>
+                              {item.notes && (
+                                <div style={{ color: T.textMuted, fontSize: 10.5, marginTop: 1 }}>{item.notes}</div>
+                              )}
+                            </div>
+                            {isSel && <span style={{ color: "#38bdf8", fontSize: 13, flexShrink: 0 }}>✓</span>}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Picker footer */}
+                  <div style={{ ...S.modalFooter, borderTop: `1px solid ${T.dividerSolid}`, flexShrink: 0 }}>
+                    <div style={{ flex: 1, color: T.textMuted, fontSize: 11 }}>
+                      {filteredPool.length} item{filteredPool.length !== 1 ? "s" : ""} available
+                      {pickerTempId && <span style={{ color: "#38bdf8", marginLeft: 8 }}>1 selected</span>}
+                    </div>
+                    <button
+                      style={{ ...S.cancelBtn, background: T.bgBtn, border: `1px solid ${T.borderBtn}`, color: T.textSecondary }}
+                      onClick={() => { setAssignStep("main"); setPickerSearch(""); setPickerTempId(""); setPickerTempVal(""); }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      disabled={!pickerTempId}
+                      style={!pickerTempId ? S.submitBtnDisabled : S.submitBtn}
+                      onClick={() => { if (pickerTempId && pickerTempVal) pm.onConfirm(pickerTempId, pickerTempVal); }}
+                    >
+                      Use Selected
+                    </button>
+                  </div>
+                </>
+              )}
+
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
