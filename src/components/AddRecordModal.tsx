@@ -98,7 +98,7 @@ function CooldownTimer({ endsAt }: { endsAt: string }) {
     return () => clearInterval(id);
   }, [endsAt]);
 
-  if (t.expired) return <span style={{ color: "#059669", fontSize: 11, fontWeight: 600 }}>✓ Cooldown expired — safe to reuse.</span>;
+  if (t.expired) return <span style={{ color: "#059669", fontSize: 11, fontWeight: 600 }}>Cooldown expired — safe to reuse.</span>;
   return (
     <div style={{ background: "rgba(244,63,94,0.05)", border: "1px solid rgba(244,63,94,0.14)", borderRadius: 8, padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
       <span style={{ color: "#888899", fontSize: 9.5, textTransform: "uppercase" as const, letterSpacing: 0.8, fontWeight: 600 }}>Cooldown Remaining</span>
@@ -272,17 +272,6 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
         {/* ── Header ── */}
         <div style={M.header}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 9,
-              background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 3px 10px rgba(142,22,22,0.28)",
-            }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                <line x1="12" y1="5" x2="12" y2="19" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
-                <line x1="5" y1="12" x2="19" y2="12" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
-              </svg>
-            </div>
             <span style={M.headerTitle}>Add IP Address</span>
           </div>
           <button style={M.closeBtn} onClick={onClose}
@@ -299,7 +288,6 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
             <div style={M.field}>
               <label style={M.label}>
                 Category
-                {category && <span style={{ color: "#059669", marginLeft: 6, fontSize: 9, fontWeight: 700 }}>✓</span>}
               </label>
               <select
                 style={{ ...M.input, paddingRight: 32, cursor: "pointer" }}
@@ -426,9 +414,6 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
           {/* ── Auto-fetched Cache / Keywords / Smartlink ── */}
           {fetchingMeta && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#8888aa", fontSize: 11.5 }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: "spin 1s linear infinite" }}>
-                <path d="M12 2a10 10 0 0 1 10 10" />
-              </svg>
               Fetching attached data…
             </div>
           )}
@@ -443,7 +428,7 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: "#8e1616", letterSpacing: 0.5, textTransform: "uppercase" as const }}>
-                  🔒 Locked to this IP
+                  Locked to this IP
                 </span>
               </div>
               <ReadonlyField label="Cache"     value={attached!.cache} />
@@ -471,17 +456,6 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
               animation: "fadeIn 0.2s ease",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ color: isChecking ? "#8e1616" : isValid ? "#059669" : isBlocked ? "#f43f5e" : "#f59e0b", fontSize: 14, display: "flex", alignItems: "center" }}>
-                  {isChecking ? (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: "spin 1s linear infinite" }}>
-                      <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.08)" /><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" />
-                    </svg>
-                  ) : isValid ? (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                  ) : (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /></svg>
-                  )}
-                </span>
                 <span style={{ fontWeight: 700, fontSize: 12.5, color: isChecking ? "#8e1616" : isValid ? "#059669" : isBlocked ? "#f43f5e" : isMismatch ? "#f59e0b" : "#f43f5e" }}>
                   {isChecking ? "Checking bindings…" : isValid ? "Valid — ready to confirm" : isBlocked ? "Blocked — in cooldown" : isMismatch ? "Fingerprint Conflict" : "Validation Error"}
                 </span>
@@ -526,25 +500,24 @@ export default function AddRecordModal({ onClose, onSaved }: AddRecordModalProps
               onMouseEnter={(e) => { if (!confirming) e.currentTarget.style.opacity = "0.88"; }}
               onMouseLeave={(e) => { if (!confirming) e.currentTarget.style.opacity = "1";    }}
             >
-              {confirming ? "Verifying…" : "✓  Verify Identity"}
+              {confirming ? "Verifying…" : "Verify Identity"}
             </button>
           )}
 
           {confirmed && (
             <div style={{ background: "rgba(5,150,105,0.07)", border: "1px solid rgba(5,150,105,0.18)", borderRadius: 8, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8, color: "#059669", fontSize: 12, fontWeight: 600, animation: "fadeUp 0.22s cubic-bezier(0.16,1,0.3,1) both" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
               Identity verified — you may now save this record.
             </div>
           )}
 
           {confirmMsg && !confirmed && (
             <div style={{ background: confirmMsg.ok ? "rgba(5,150,105,0.07)" : "rgba(244,63,94,0.06)", border: `1px solid ${confirmMsg.ok ? "rgba(5,150,105,0.18)" : "rgba(244,63,94,0.18)"}`, borderRadius: 8, padding: "10px 14px", color: confirmMsg.ok ? "#059669" : "#f43f5e", fontSize: 12, fontWeight: 500, animation: "fadeIn 0.2s ease" }}>
-              {confirmMsg.ok ? "✓ " : "⚠ "}{confirmMsg.text}
+              {confirmMsg.text}
             </div>
           )}
 
           <div style={M.infoBox}>
-            💡 Type the Unique ID/IP to run a live binding audit. Click <strong>Verify</strong> to confirm the identity is clear, then save.
+            Type the Unique ID/IP to run a live binding audit. Click <strong>Verify</strong> to confirm the identity is clear, then save.
             Press <kbd style={M.kbd}>Enter</kbd> after verifying.
           </div>
 

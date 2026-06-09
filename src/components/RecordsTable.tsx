@@ -143,13 +143,13 @@ function CooldownTimer({ endsAt }: { endsAt: string }) {
   if (t.expired) {
     return (
       <span style={{ color: "#10b981", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>
-        ✓ Cooldown expired — safe to reuse.
+        Cooldown expired — safe to reuse.
       </span>
     );
   }
   return (
     <div style={S.timerBox}>
-      <span style={S.timerLabel}>⏱ Cooldown Countdown:</span>
+      <span style={S.timerLabel}>Cooldown Countdown:</span>
       <span style={S.timerValue}>
         {String(t.h).padStart(2,"0")}h&nbsp;
         {String(t.m).padStart(2,"0")}m&nbsp;
@@ -402,34 +402,6 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
           display: "flex", flexDirection: "column" as const, gap: 10,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: vc.color, fontSize: 14, display: "flex", alignItems: "center" }}>
-              {vStatus === "checking" ? (
-                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: "spin 1s linear infinite" }}>
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.1)" />
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" />
-                </svg>
-              ) : vStatus === "valid" ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              ) : vStatus === "blocked" ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                </svg>
-              ) : vStatus === "mismatch" ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                  <line x1="12" y1="9" x2="12" y2="13" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                </svg>
-              )}
-            </span>
             <span style={{ color: vc.color, fontSize: 12.5, fontWeight: 700 }}>{vc.label}</span>
           </div>
 
@@ -507,7 +479,7 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
             if (!confirming) e.currentTarget.style.opacity = "1";
           }}
         >
-          {confirming ? "⟳ Registering..." : "✓ OK — Confirm & Start 48h Cooldown"}
+          {confirming ? "Registering..." : "OK — Confirm & Start 48h Cooldown"}
         </button>
       )}
 
@@ -522,7 +494,6 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
           fontWeight:   500,
           animation:    "fadeIn 0.2s ease",
         }}>
-          <span style={{ marginRight: 6 }}>{confirmMsg.ok ? "✓" : "⚠"}</span>
           {confirmMsg.text}
         </div>
       )}
@@ -705,7 +676,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
   }
 
   if (loading)    return <div style={{ ...S.msg, background: T.bgCard, border: `1px solid ${T.borderCard}`, color: T.textSecondary }}>Negotiating data pipeline & fetching IP addresses…</div>;
-  if (fetchError) return <div style={{ ...S.errorMsg, background: T.bgCard, border: `1px solid ${T.borderCard}` }}>⚠ Handshake Error: {fetchError}</div>;
+  if (fetchError) return <div style={{ ...S.errorMsg, background: T.bgCard, border: `1px solid ${T.borderCard}` }}>Handshake Error: {fetchError}</div>;
 
   const visibleRecords = records.filter(r => !deletedIds.has(r.id));
   const visibleIds        = visibleRecords.map(r => r.id);
@@ -752,7 +723,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
             <button onClick={() => setPendingBulkDelete(true)} style={S.bulkDeleteBtn}
               onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.background = "rgba(244,63,94,0.12)"; }}
               onMouseLeave={e => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.background = "rgba(244,63,94,0.07)"; }}>
-              🗑 Remove selected
+              Remove selected
             </button>
           )}
         </div>
@@ -874,7 +845,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                               disabled={rs.activating}
                               title="Mark as Active — starts 48h usage block"
                             >
-                              {rs.activating ? "…" : "▶ Activate"}
+                              {rs.activating ? "…" : "Activate"}
                             </button>
                           )}
                         </div>
@@ -896,18 +867,18 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                               disabled={rs.checking}
                               title="Run duplicate & fingerprint check"
                             >
-                              {rs.checking ? "Checking…" : "⚡ Check"}
+                              {rs.checking ? "Checking…" : "Check"}
                             </button>
-                            {isBlocked  && <span style={{ ...S.checkBadge, ...S.blockedBadge }}>⛔ Cooldown</span>}
-                            {isMismatch && <span style={{ ...S.checkBadge, ...S.mismatchBadge }}>⚠ Conflict</span>}
-                            {isValid    && <span style={{ ...S.checkBadge, ...S.validBadge }}>✓ Ready</span>}
+                            {isBlocked  && <span style={{ ...S.checkBadge, ...S.blockedBadge }}>Cooldown</span>}
+                            {isMismatch && <span style={{ ...S.checkBadge, ...S.mismatchBadge }}>Conflict</span>}
+                            {isValid    && <span style={{ ...S.checkBadge, ...S.validBadge }}>Ready</span>}
                           </div>
                           {/* Expand hint + Delete — same row */}
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={S.expandHint} onClick={() => toggleExpand(r.id)}>
                               {isExpanded
-                                ? <span style={{ color: "#8e1616", fontWeight: 600 }}>▲ Collapse</span>
-                                : <span>▼ Details</span>}
+                                ? <span style={{ color: "#8e1616", fontWeight: 600 }}>Collapse</span>
+                                : <span>Details</span>}
                             </span>
                             <button
                               onClick={e => deleteRow(r.id, e)}
@@ -924,17 +895,11 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                                 e.currentTarget.style.borderColor = "rgba(244,63,94,0.2)";
                               }}
                             >
-                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="3 6 5 6 21 6" />
-                                <path d="M19 6l-1 14H6L5 6" />
-                                <path d="M10 11v6M14 11v6" />
-                                <path d="M9 6V4h6v2" />
-                              </svg>
                               Delete
                             </button>
                           </div>
                           {rs.error && (
-                            <span style={S.rowError} title={rs.error}>⚠ {rs.error}</span>
+                            <span style={S.rowError} title={rs.error}>{rs.error}</span>
                           )}
                         </div>
                       </td>
@@ -977,13 +942,13 @@ function CheckResultDetail({ result }: { result: CheckResult }) {
     }}>
       {isBlocked && (
         <div style={S.blockedSection}>
-          <div style={S.blockedHeadline}>🚫 BLOCKED — Cooldown Period Active</div>
+          <div style={S.blockedHeadline}>BLOCKED — Cooldown Period Active</div>
           <div style={S.blockedMsg}>{result.message}</div>
           {result.cooldown_ends_at ? (
             <CooldownTimer endsAt={result.cooldown_ends_at} />
           ) : result.remaining ? (
             <div style={S.timerBox}>
-              <span style={S.timerLabel}>⏱ Cooldown Remaining:</span>
+              <span style={S.timerLabel}>Cooldown Remaining:</span>
               <span style={S.timerValue}>
                 {result.remaining.hours}h&nbsp;
                 {result.remaining.minutes}m&nbsp;
@@ -1002,7 +967,7 @@ function CheckResultDetail({ result }: { result: CheckResult }) {
       {(isMismatch || hasExtraFpWarn) && (
         <div style={S.fpSection}>
           <div style={S.fpHeadline}>
-            {isMismatch ? "⚠ Fingerprint Conflict Detected" : "⚠ Fingerprint Association"}
+            {isMismatch ? "Fingerprint Conflict Detected" : "Fingerprint Association"}
           </div>
           <div style={S.fpMsg}>
             {isMismatch
@@ -1028,12 +993,12 @@ function CheckResultDetail({ result }: { result: CheckResult }) {
 
       {isOk && (
         <div style={S.validSection}>
-          <span style={S.validHeadline}>✓ Valid IP & Fingerprint</span>
+          <span style={S.validHeadline}>Valid IP & Fingerprint</span>
           <span style={S.validMsg}>{result.message}</span>
           {result.known_fingerprint && (
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
               <span style={S.recallNote}>
-                🔁 Recalled Fingerprint: <code style={S.code}>{result.known_fingerprint}</code>
+                Recalled Fingerprint: <code style={S.code}>{result.known_fingerprint}</code>
               </span>
               <CopyButton value={result.known_fingerprint} label="fingerprint" />
             </div>
