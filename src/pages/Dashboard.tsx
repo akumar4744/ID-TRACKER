@@ -28,19 +28,121 @@ interface DashboardProps {
   profile:  UserProfile;
 }
 
-const NAV_ITEMS: { page: NavPage; label: string }[] = [
-  { page: "records",     label: "IP Address"        },
-  { page: "addresses",   label: "Proxy"             },
-  { page: "employees",   label: "Employees"         },
-  { page: "live",        label: "Live Monitor"      },
-  { page: "credentials", label: "Credentials"       },
-  { page: "tasks",       label: "Tasks"             },
-  { page: "security",    label: "Security"          },
-  { page: "recovery",    label: "Recovery Requests" },
-  { page: "workspace",   label: "Workspace"         },
-  { page: "cache",       label: "Cache"             },
-  { page: "keywords",    label: "Keywords"          },
-  { page: "smartlink",   label: "Smartlink"         },
+const NAV_ITEMS: { page: NavPage; label: string; icon: React.ReactNode }[] = [
+  {
+    page: "records", label: "IP Address",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.5" />
+        <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <polyline points="10,9 9,9 8,9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "addresses", label: "Proxy",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    page: "employees", label: "Employees",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "live", label: "Live Monitor",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "credentials", label: "Credentials",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "tasks", label: "Tasks",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M9 11l3 3L22 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "security", label: "Security",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5 4.5-1.35 8-6.25 8-11.5V6L12 2z" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "recovery", label: "Recovery Requests",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.78 1 6.45 2.65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <polyline points="21 3 21 9 15 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "workspace", label: "Workspace",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="9" y1="4" x2="9" y2="9" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    page: "cache", label: "Cache",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3 5v5c0 1.657 4.03 3 9 3s9-1.343 9-3V5" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3 10v5c0 1.657 4.03 3 9 3s9-1.343 9-3v-5" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
+    page: "keywords", label: "Keywords",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16M4 10h10M4 14h12M4 18h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    page: "smartlink", label: "Smartlink",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
 ];
 
 // ── Global overrides injected for light mode ──────────────────────────────────
@@ -311,7 +413,7 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
             Navigation
           </div>
 
-          {NAV_ITEMS.map(({ page: p, label }) => {
+          {NAV_ITEMS.map(({ page: p, label, icon }) => {
             const active = page === p;
             return (
               <button
@@ -353,6 +455,9 @@ function DashboardInner({ onLogout, profile }: DashboardProps) {
                   textAlign:    "left",
                 }}
               >
+                <span style={{ opacity: active ? 1 : 0.45, transition: "opacity 0.18s ease", display: "flex", flexShrink: 0 }}>
+                  {icon}
+                </span>
                 <span style={{ letterSpacing: 0.1, flex: 1 }}>{label}</span>
                 {active && (
                   <span style={{
