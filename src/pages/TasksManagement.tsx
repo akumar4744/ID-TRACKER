@@ -161,12 +161,12 @@ export default function TasksManagement() {
           onClick={() => { setShowForm((v) => !v); setErr(""); }}
           style={{
             display: "flex", alignItems: "center", gap: 7,
-            background: showForm ? T.bgBtn : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+            background: showForm ? T.bgBtn : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
             border: showForm ? `1px solid ${T.borderBtn}` : "none",
             color: showForm ? T.textSecondary : "#fff",
             borderRadius: 9, padding: "9px 16px",
             fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-            boxShadow: showForm ? "none" : "0 4px 16px rgba(124,108,248,0.3)",
+            boxShadow: showForm ? "none" : "0 4px 16px rgba(142,22,22,0.28)",
           }}
         >
           {showForm ? "✕ Cancel" : "+ Compose & Send Task"}
@@ -231,9 +231,9 @@ export default function TasksManagement() {
                 return (
                   <button key={e.id} type="button" onClick={() => toggleEmp(e.id)}
                     style={{
-                      background: selected ? "rgba(124,108,248,0.18)" : T.bgBtn,
-                      border: `1px solid ${selected ? "rgba(124,108,248,0.4)" : T.borderBtn}`,
-                      color: selected ? "#a5a8ff" : T.textSecondary,
+                      background: selected ? "rgba(142,22,22,0.18)" : T.bgBtn,
+                      border: `1px solid ${selected ? "rgba(142,22,22,0.30)" : T.borderBtn}`,
+                      color: selected ? "#8e1616" : T.textSecondary,
                       borderRadius: 99, padding: "4px 12px",
                       fontSize: 11, fontWeight: selected ? 600 : 400,
                       cursor: "pointer", fontFamily: "inherit",
@@ -264,13 +264,13 @@ export default function TasksManagement() {
               disabled={saving}
               style={{
                 background: saving
-                  ? "rgba(124,108,248,0.35)"
-                  : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                  ? "rgba(142,22,22,0.30)"
+                  : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                 border: "none", color: "#fff",
                 borderRadius: 8, padding: "9px 22px",
                 fontSize: 13, fontWeight: 600,
                 cursor: saving ? "not-allowed" : "pointer", fontFamily: "inherit",
-                boxShadow: saving ? "none" : "0 4px 16px rgba(124,108,248,0.3)",
+                boxShadow: saving ? "none" : "0 4px 16px rgba(142,22,22,0.28)",
               }}
             >
               {saving ? "Sending…" : `📤 Send Task${empIds.size > 1 ? `s (×${empIds.size})` : ""}`}
@@ -328,8 +328,8 @@ export default function TasksManagement() {
               Failed:    { color: "#f43f5e", bg: "rgba(244,63,94,0.08)",   border: "rgba(244,63,94,0.22)"   },
             };
             const st = sc[t.status] ?? { color: "#8892b0", bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.08)" };
-            const pc: Record<string, string> = { low: "#60a5fa", normal: "#a5a8ff", high: "#f43f5e" };
-            const priorityColor = pc[t.priority] ?? "#a5a8ff";
+            const pc: Record<string, string> = { low: "#60a5fa", normal: "#8e1616", high: "#f43f5e" };
+            const priorityColor = pc[t.priority] ?? "#8e1616";
             const overdue = t.due_date && new Date(t.due_date) < new Date() && t.status === "Pending";
 
             return (

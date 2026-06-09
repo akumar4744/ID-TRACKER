@@ -154,10 +154,10 @@ export default function LiveMonitor() {
                   display: "flex", flexDirection: "column", gap: 10,
                   background: isSelected
                     ? (isLight
-                        ? "linear-gradient(90deg, rgba(124,108,248,0.08), rgba(124,108,248,0.03))"
-                        : "linear-gradient(90deg, rgba(124,108,248,0.1), rgba(124,108,248,0.04))")
+                        ? "linear-gradient(90deg, rgba(142,22,22,0.06), rgba(142,22,22,0.03))"
+                        : "linear-gradient(90deg, rgba(142,22,22,0.08), rgba(142,22,22,0.04))")
                     : "transparent",
-                  borderLeft: isSelected ? "2px solid rgba(124,108,248,0.6)" : "2px solid transparent",
+                  borderLeft: isSelected ? "2px solid rgba(142,22,22,0.55)" : "2px solid transparent",
                   transition: "all 0.18s ease",
                 }}>
                   {/* Top row */}
@@ -232,8 +232,8 @@ export default function LiveMonitor() {
             <div style={S.viewerEmpty}>
               <div style={{
                 width: 64, height: 64, borderRadius: 18,
-                background: "rgba(124,108,248,0.06)",
-                border: "1px solid rgba(124,108,248,0.15)",
+                background: "rgba(142,22,22,0.05)",
+                border: "1px solid rgba(142,22,22,0.14)",
                 display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28,
               }}>🖥️</div>
               <span style={{ color: T.textMuted, fontSize: 13, maxWidth: 280, lineHeight: 1.7, textAlign: "center" }}>
@@ -247,8 +247,8 @@ export default function LiveMonitor() {
             <div style={S.viewerEmpty}>
               <div style={{
                 width: 48, height: 48,
-                border: "2px solid rgba(124,108,248,0.15)",
-                borderTopColor: "rgba(124,108,248,0.8)",
+                border: "2px solid rgba(142,22,22,0.14)",
+                borderTopColor: "rgba(142,22,22,0.75)",
                 borderRadius: "50%",
                 animation: "spin 0.8s linear infinite",
               }} />
@@ -370,8 +370,8 @@ const S: Record<string, React.CSSProperties> = {
     display: "inline-block",
   },
   sessionCount: {
-    background: "rgba(124,108,248,0.12)", color: "#7c6cf8",
-    border: "1px solid rgba(124,108,248,0.22)",
+    background: "rgba(142,22,22,0.10)", color: "#8e1616",
+    border: "1px solid rgba(142,22,22,0.22)",
     borderRadius: 99, padding: "1px 8px", fontSize: 11,
   },
   watchBtn: {
@@ -422,8 +422,8 @@ const S: Record<string, React.CSSProperties> = {
   },
   reconnectBtn: {
     display: "flex", alignItems: "center", gap: 7,
-    background: "rgba(124,108,248,0.1)", border: "1px solid rgba(124,108,248,0.3)",
-    color: "#a5a8ff", borderRadius: 8, padding: "8px 18px",
+    background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)",
+    color: "#8e1616", borderRadius: 8, padding: "8px 18px",
     fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
   },
   stopBtn: {

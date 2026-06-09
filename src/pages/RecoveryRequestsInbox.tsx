@@ -98,9 +98,9 @@ export default function RecoveryRequestsInbox() {
             <button key={f}
               onClick={() => setFilter(f)}
               style={{
-                background: filter === f ? "rgba(124,108,248,0.15)" : T.bgBtn,
-                border: `1px solid ${filter === f ? "rgba(124,108,248,0.3)" : T.borderBtn}`,
-                color:  filter === f ? "#a5a8ff" : T.textSecondary,
+                background: filter === f ? "rgba(142,22,22,0.14)" : T.bgBtn,
+                border: `1px solid ${filter === f ? "rgba(142,22,22,0.28)" : T.borderBtn}`,
+                color:  filter === f ? "#8e1616" : T.textSecondary,
                 borderRadius: 7, padding: "7px 14px",
                 fontSize: 11.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
               }}>

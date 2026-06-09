@@ -467,7 +467,7 @@ export default function EmployeeManagement() {
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-2px)";
                     e.currentTarget.style.boxShadow = "0 8px 28px rgba(0,0,0,0.25)";
-                    e.currentTarget.style.borderColor = "rgba(124,108,248,0.35)";
+                    e.currentTarget.style.borderColor = "rgba(142,22,22,0.30)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "none";
@@ -478,11 +478,11 @@ export default function EmployeeManagement() {
                   {/* Avatar */}
                   <div style={{
                     width: 52, height: 52, borderRadius: "50%",
-                    background: "linear-gradient(135deg, rgba(124,108,248,0.35), rgba(124,108,248,0.12))",
-                    border: "1px solid rgba(124,108,248,0.3)",
+                    background: "linear-gradient(135deg, rgba(142,22,22,0.30), rgba(142,22,22,0.10))",
+                    border: "1px solid rgba(142,22,22,0.28)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "#a5a8ff", fontSize: 16, fontWeight: 700,
-                    boxShadow: "0 0 14px rgba(124,108,248,0.18)",
+                    color: "#8e1616", fontSize: 16, fontWeight: 700,
+                    boxShadow: "0 0 14px rgba(142,22,22,0.18)",
                     flexShrink: 0,
                   }}>
                     {initials}
@@ -652,8 +652,8 @@ export default function EmployeeManagement() {
               onClick={() => setDetailTab(id)}
               style={{
                 background: "none", border: "none",
-                borderBottom: detailTab === id ? "2px solid #7c6cf8" : "2px solid transparent",
-                color: detailTab === id ? "#a5a8ff" : T.textMuted,
+                borderBottom: detailTab === id ? "2px solid #8e1616" : "2px solid transparent",
+                color: detailTab === id ? "#8e1616" : T.textMuted,
                 padding: "11px 16px 9px",
                 fontSize: 12, fontWeight: detailTab === id ? 600 : 400,
                 cursor: "pointer", fontFamily: "inherit",
@@ -705,7 +705,7 @@ export default function EmployeeManagement() {
                   Assigned Proxies
                 </span>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
-                  <Chip label="Total"     count={addrSummary.total}     color="#818cf8" />
+                  <Chip label="Total"     count={addrSummary.total}     color="#8e1616" />
                   <Chip label="Pending"   count={addrSummary.pending}   color="#f59e0b" />
                   <Chip label="Completed" count={addrSummary.completed} color="#10b981" />
                   <Chip label="Failed"    count={addrSummary.failed}    color="#f43f5e" />
@@ -858,8 +858,8 @@ export default function EmployeeManagement() {
                     <button
                       onClick={() => { setShowPwdChange(true); setPwdErr(""); setPwdMsg(""); setNewAdminPwd(""); setNewAdminPwd2(""); }}
                       style={{
-                        background: "rgba(124,108,248,0.1)", border: "1px solid rgba(124,108,248,0.3)",
-                        color: "#a5a8ff", borderRadius: 7, padding: "7px 14px",
+                        background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)",
+                        color: "#8e1616", borderRadius: 7, padding: "7px 14px",
                         fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
                         alignSelf: "flex-start",
                       }}
@@ -918,8 +918,8 @@ export default function EmployeeManagement() {
                           disabled={pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2}
                           style={{
                             background: pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2
-                              ? "rgba(124,108,248,0.2)"
-                              : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                              ? "rgba(142,22,22,0.18)"
+                              : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                             border: "none",
                             color: pwdChanging || newAdminPwd.length < 8 || newAdminPwd !== newAdminPwd2 ? T.textMuted : "#fff",
                             borderRadius: 7, padding: "7px 16px",
@@ -950,7 +950,7 @@ export default function EmployeeManagement() {
                 {/* Summary stat cards */}
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
                   {[
-                    { label: "Total Assigned", value: wTotal,     color: "#818cf8", bg: "rgba(124,108,248,0.06)", border: "rgba(124,108,248,0.18)" },
+                    { label: "Total Assigned", value: wTotal,     color: "#8e1616", bg: "rgba(142,22,22,0.05)", border: "rgba(142,22,22,0.18)" },
                     { label: "Pending",         value: wPending,   color: "#f59e0b", bg: "rgba(245,158,11,0.06)",  border: "rgba(245,158,11,0.18)"  },
                     { label: "Completed",       value: wCompleted, color: "#10b981", bg: "rgba(16,185,129,0.06)",  border: "rgba(16,185,129,0.18)"  },
                     { label: "Failed",          value: wFailed,    color: "#f43f5e", bg: "rgba(244,63,94,0.06)",   border: "rgba(244,63,94,0.18)"   },
@@ -1123,12 +1123,12 @@ export default function EmployeeManagement() {
               <button
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  background: showTaskForm ? T.bgBtn : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                  background: showTaskForm ? T.bgBtn : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                   border: showTaskForm ? `1px solid ${T.borderBtn}` : "none",
                   color: showTaskForm ? T.textSecondary : "#fff",
                   borderRadius: 7, padding: "7px 14px", fontSize: 12, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
-                  boxShadow: showTaskForm ? "none" : "0 4px 12px rgba(124,108,248,0.3)",
+                  boxShadow: showTaskForm ? "none" : "0 4px 12px rgba(142,22,22,0.28)",
                 }}
                 onClick={() => { setShowTaskForm((v) => !v); setTaskErr(""); }}
               >
@@ -1261,10 +1261,10 @@ export default function EmployeeManagement() {
                   const st = sc[t.status] ?? { color: "#8892b0", bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.08)" };
                   const pc: Record<string, string> = {
                     low:    "#60a5fa",
-                    normal: "#a5a8ff",
+                    normal: "#8e1616",
                     high:   "#f43f5e",
                   };
-                  const priorityColor = pc[t.priority] ?? "#a5a8ff";
+                  const priorityColor = pc[t.priority] ?? "#8e1616";
 
                   return (
                     <div key={t.id} style={{
@@ -1360,12 +1360,12 @@ export default function EmployeeManagement() {
               <button
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  background: showCredForm ? T.bgBtn : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                  background: showCredForm ? T.bgBtn : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                   border: showCredForm ? `1px solid ${T.borderBtn}` : "none",
                   color: showCredForm ? T.textSecondary : "#fff",
                   borderRadius: 7, padding: "7px 14px", fontSize: 12, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
-                  boxShadow: showCredForm ? "none" : "0 4px 12px rgba(124,108,248,0.3)",
+                  boxShadow: showCredForm ? "none" : "0 4px 12px rgba(142,22,22,0.28)",
                 }}
                 onClick={() => { setShowCredForm((v) => !v); setCredErr(""); }}
               >
@@ -1474,8 +1474,8 @@ export default function EmployeeManagement() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{
-                            background: "rgba(124,108,248,0.1)", border: "1px solid rgba(124,108,248,0.22)",
-                            color: "#a5a8ff", borderRadius: 6, padding: "3px 10px",
+                            background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.22)",
+                            color: "#8e1616", borderRadius: 6, padding: "3px 10px",
                             fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
                           }}>
                             {cred.platform}
@@ -1800,11 +1800,11 @@ function timeAgo(ts: string): string {
 const S: Record<string, React.CSSProperties> = {
   addBtn: {
     display: "flex", alignItems: "center", gap: 7,
-    background: "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+    background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
     border: "none", color: "#fff",
     borderRadius: 9, padding: "9px 16px",
     fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-    boxShadow: "0 4px 16px rgba(124,108,248,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+    boxShadow: "0 4px 16px rgba(142,22,22,0.28), inset 0 1px 0 rgba(255,255,255,0.1)",
     transition: "all 0.2s ease",
   },
   tableCard: {
@@ -1825,7 +1825,7 @@ const S: Record<string, React.CSSProperties> = {
   tr: { borderBottom: "1px solid rgba(255,255,255,0.04)", transition: "background 0.15s ease" },
   td: { padding: "12px 16px", color: "#8892b0", verticalAlign: "middle" },
   mono: { fontFamily: "'JetBrains Mono', monospace", color: "#6b7a99" },
-  nameLink: { color: "#a5a8ff", cursor: "pointer", fontWeight: 500 },
+  nameLink: { color: "#8e1616", cursor: "pointer", fontWeight: 500 },
   revokeBtn: {
     background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.22)",
     color: "#f43f5e", borderRadius: 6, padding: "4px 11px",
@@ -1888,11 +1888,11 @@ const S: Record<string, React.CSSProperties> = {
     fontSize: 13, cursor: "pointer", fontFamily: "inherit",
   },
   submitBtn: {
-    background: "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+    background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
     border: "none", color: "#fff",
     borderRadius: 8, padding: "9px 22px",
     fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-    boxShadow: "0 4px 16px rgba(124,108,248,0.3)",
+    boxShadow: "0 4px 16px rgba(142,22,22,0.28)",
   },
   submitBtnDisabled: {
     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",

@@ -64,8 +64,8 @@ export default function WorkspacePage() {
             onClick={() => setTab(id)}
             style={{
               background: "none", border: "none",
-              borderBottom: tab === id ? "2px solid #7c6cf8" : "2px solid transparent",
-              color: tab === id ? "#a5a8ff" : T.textMuted,
+              borderBottom: tab === id ? "2px solid #8e1616" : "2px solid transparent",
+              color: tab === id ? "#8e1616" : T.textMuted,
               padding: "11px 16px 9px",
               fontSize: 12.5, fontWeight: tab === id ? 600 : 400,
               cursor: "pointer", fontFamily: "inherit",
@@ -720,11 +720,11 @@ function Empty({ T, children }: { T: ReturnType<typeof useTheme>["T"]; children:
 }
 
 const primaryBtn: React.CSSProperties = {
-  background: "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+  background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
   border: "none", color: "#fff",
   borderRadius: 8, padding: "9px 18px",
   fontSize: 12.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-  boxShadow: "0 4px 16px rgba(124,108,248,0.3)",
+  boxShadow: "0 4px 16px rgba(142,22,22,0.28)",
 };
 function secondaryBtn(T: ReturnType<typeof useTheme>["T"]): React.CSSProperties {
   return {

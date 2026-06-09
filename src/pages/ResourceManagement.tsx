@@ -276,7 +276,7 @@ export default function ResourceManagement({ resourceType }: ResourceManagementP
 
       {/* Summary chips */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" as const }}>
-        <ResChip label="Total"      count={totalCount}      color="#818cf8" T={T} />
+        <ResChip label="Total"      count={totalCount}      color="#8e1616" T={T} />
         <ResChip label="Unassigned" count={unassignedCount} color="#f59e0b" T={T} />
         <ResChip label="Assigned"   count={assignedCount}   color="#22c55e" T={T} />
       </div>
@@ -360,7 +360,7 @@ export default function ResourceManagement({ resourceType }: ResourceManagementP
 
               {csvStats && (
                 <div style={S.csvStats}>
-                  <span style={{ color: "#818cf8", fontSize: 12, fontWeight: 600 }}>📄 CSV loaded</span>
+                  <span style={{ color: "#8e1616", fontSize: 12, fontWeight: 600 }}>📄 CSV loaded</span>
                   <span style={{ color: "#8b92a8", fontSize: 11 }}>
                     {csvStats.loaded} item{csvStats.loaded !== 1 ? "s" : ""} ready to import
                     {csvStats.raw !== csvStats.loaded ? ` (${csvStats.raw - csvStats.loaded} blank/header rows skipped)` : " — all rows included"}
@@ -515,9 +515,9 @@ export default function ResourceManagement({ resourceType }: ResourceManagementP
             onClick={() => { setPage(Math.max(1, page - 1)); setSelected(new Set()); }}
             disabled={page === 1}
             style={{
-              background: page === 1 ? T.bgBtn : "rgba(124,108,248,0.12)",
-              border: "1px solid rgba(124,108,248,0.25)", borderRadius: 7,
-              color: page === 1 ? T.textMuted : "#a5a8ff", fontSize: 12, fontWeight: 600,
+              background: page === 1 ? "transparent" : "rgba(142,22,22,0.08)",
+              border: "1px solid rgba(142,22,22,0.22)", borderRadius: 7,
+              color: page === 1 ? T.textMuted : "#8e1616", fontSize: 12, fontWeight: 600,
               padding: "6px 16px", cursor: page === 1 ? "default" : "pointer", fontFamily: "inherit",
             }}
           >← Prev</button>
@@ -528,9 +528,9 @@ export default function ResourceManagement({ resourceType }: ResourceManagementP
             onClick={() => { setPage(Math.min(totalPages, page + 1)); setSelected(new Set()); }}
             disabled={page === totalPages}
             style={{
-              background: page === totalPages ? T.bgBtn : "rgba(124,108,248,0.12)",
-              border: "1px solid rgba(124,108,248,0.25)", borderRadius: 7,
-              color: page === totalPages ? T.textMuted : "#a5a8ff", fontSize: 12, fontWeight: 600,
+              background: page === totalPages ? "transparent" : "rgba(142,22,22,0.08)",
+              border: "1px solid rgba(142,22,22,0.22)", borderRadius: 7,
+              color: page === totalPages ? T.textMuted : "#8e1616", fontSize: 12, fontWeight: 600,
               padding: "6px 16px", cursor: page === totalPages ? "default" : "pointer", fontFamily: "inherit",
             }}
           >Next →</button>
@@ -595,12 +595,12 @@ function ResStat({ label, value, color }: { label: string; value: number; color:
 // ── Styles ─────────────────────────────────────────────────────────────────────
 const S: Record<string, React.CSSProperties> = {
   addBtn: {
-    background: "#4f46e5", border: "none", color: "#fff",
+    background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)", border: "none", color: "#fff",
     borderRadius: 7, padding: "9px 16px", fontSize: 12, fontWeight: 600,
-    cursor: "pointer", fontFamily: "inherit",
+    cursor: "pointer", fontFamily: "inherit", boxShadow: "0 2px 8px rgba(142,22,22,0.22)",
   },
   addBtnActive: {
-    background: "rgba(91,110,245,0.15)", border: "1px solid rgba(91,110,245,0.3)", color: "#818cf8",
+    background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)", color: "#8e1616",
     borderRadius: 7, padding: "9px 16px", fontSize: 12, fontWeight: 600,
     cursor: "pointer", fontFamily: "inherit",
   },
@@ -619,14 +619,14 @@ const S: Record<string, React.CSSProperties> = {
   },
   panelTabs:      { display: "flex", borderBottom: "1px solid rgba(255,255,255,0.07)" },
   panelTab:       { background: "none", border: "none", color: "#4a5166", padding: "10px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit", borderBottom: "2px solid transparent" },
-  panelTabActive: { background: "none", border: "none", color: "#818cf8", padding: "10px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit", borderBottom: "2px solid #4f46e5", fontWeight: 600 },
+  panelTabActive: { background: "none", border: "none", color: "#8e1616", padding: "10px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit", borderBottom: "2px solid #8e1616", fontWeight: 600 },
   panelClose:     { background: "none", border: "none", color: "#4a5166", marginLeft: "auto", padding: "10px 14px", fontSize: 14, cursor: "pointer", fontFamily: "inherit" },
   panelBody:      { padding: "1.1rem", display: "flex", flexDirection: "column", gap: 8 },
   panelActions:   { display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 4 },
   filterBar:      { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" as const },
   filterTabs:     { display: "flex", gap: 4 },
   filterTab:      { display: "inline-flex", alignItems: "center", background: "none", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, color: "#4a5166", fontSize: 12, padding: "6px 12px", cursor: "pointer", fontFamily: "inherit" },
-  filterTabActive:{ display: "inline-flex", alignItems: "center", background: "rgba(91,110,245,0.12)", border: "1px solid rgba(91,110,245,0.28)", borderRadius: 8, color: "#818cf8", fontSize: 12, fontWeight: 600, padding: "6px 12px", cursor: "pointer", fontFamily: "inherit" },
+  filterTabActive:{ display: "inline-flex", alignItems: "center", background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)", borderRadius: 8, color: "#8e1616", fontSize: 12, fontWeight: 600, padding: "6px 12px", cursor: "pointer", fontFamily: "inherit" },
   searchInput:    { background: "#141826", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, color: "#f0f2f8", fontSize: 12, padding: "7px 12px", outline: "none", minWidth: 220, fontFamily: "inherit" },
   tableCard:      { background: "#141826", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, overflow: "hidden" },
   table:          { width: "100%", borderCollapse: "collapse", fontFamily: "inherit", fontSize: 12 },
@@ -640,11 +640,11 @@ const S: Record<string, React.CSSProperties> = {
   input:          { background: "#0f1320", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, color: "#f0f2f8", padding: "9px 10px", fontSize: 13, fontFamily: "inherit", outline: "none" },
   textarea:       { background: "#0f1320", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, color: "#f0f2f8", padding: "9px 10px", fontSize: 12, fontFamily: "inherit", outline: "none", resize: "vertical", width: "100%", boxSizing: "border-box", lineHeight: 1.6 },
   cancelBtn:      { background: "none", border: "1px solid rgba(255,255,255,0.08)", color: "#4a5166", borderRadius: 6, padding: "8px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" },
-  submitBtn:      { background: "#4f46e5", border: "none", color: "#fff", borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" },
+  submitBtn:      { background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)", border: "none", color: "#fff", borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 2px 8px rgba(142,22,22,0.22)" },
   submitBtnDisabled: { background: "rgba(255,255,255,0.04)", border: "none", color: "#2e3347", borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 600, cursor: "not-allowed", fontFamily: "inherit" },
-  csvBtn:         { background: "#1e293b", border: "1px solid rgba(255,255,255,0.07)", color: "#8b92a8", borderRadius: 5, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" },
-  csvStats:       { background: "rgba(129,140,248,0.06)", border: "1px solid rgba(129,140,248,0.18)", borderRadius: 8, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4 },
-  bulkPreview:    { background: "#0f1320", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 5, padding: "6px 10px", color: "#818cf8", fontSize: 11 },
+  csvBtn:         { background: "transparent", border: "1px solid rgba(142,22,22,0.22)", color: "#8e1616", borderRadius: 5, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" },
+  csvStats:       { background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.14)", borderRadius: 8, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4 },
+  bulkPreview:    { background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.12)", borderRadius: 5, padding: "6px 10px", color: "#8e1616", fontSize: 11 },
   bulkResult:     { background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 8, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 },
   modalOverlay:   { position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, fontFamily: "inherit" },
   modal:          { background: "#141826", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, width: "100%", maxWidth: 420, boxShadow: "0 20px 60px rgba(0,0,0,0.6)", display: "flex", flexDirection: "column" },

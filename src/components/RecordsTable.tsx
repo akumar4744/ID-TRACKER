@@ -189,8 +189,8 @@ function computeRemaining(
 function getRowHighlight(checkStatus: string | null, isExpanded: boolean) {
   if (isExpanded) {
     return {
-      row: { background: "rgba(124,108,248,0.03)", borderLeft: "3px solid #7c6cf8" },
-      resultRow: { background: "rgba(124,108,248,0.03)", borderLeft: "3px solid #7c6cf8" }
+      row: { background: "rgba(142,22,22,0.03)", borderLeft: "3px solid #8e1616" },
+      resultRow: { background: "rgba(142,22,22,0.03)", borderLeft: "3px solid #8e1616" }
     };
   }
   if (!checkStatus) return { row: {}, resultRow: {} };
@@ -208,7 +208,7 @@ function statusColor(status: string): React.CSSProperties {
     Active:   { background: "rgba(16,185,129,0.1)", color: "#10b981", borderColor: "rgba(16,185,129,0.22)" },
     Blocked:  { background: "rgba(244,63,94,0.1)", color: "#f43f5e", borderColor: "rgba(244,63,94,0.22)" },
     Pending:  { background: "rgba(245,158,11,0.1)", color: "#f59e0b", borderColor: "rgba(245,158,11,0.22)" },
-    Expired:  { background: "rgba(124,108,248,0.1)", color: "#a5a8ff", borderColor: "rgba(124,108,248,0.22)" },
+    Expired:  { background: "rgba(142,22,22,0.08)", color: "#8e1616", borderColor: "rgba(142,22,22,0.22)" },
     Verified: { background: "rgba(34,211,238,0.1)", color: "#22d3ee", borderColor: "rgba(34,211,238,0.22)" },
   };
   return map[status] ?? { background: "rgba(255,255,255,0.03)", color: "#8892b0", borderColor: "rgba(255,255,255,0.08)" };
@@ -284,10 +284,10 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
     vStatus === "valid"    ? "#10b981" :
     vStatus === "blocked"  ? "#f43f5e" :
     vStatus === "mismatch" ? "#f59e0b" :
-    vStatus === "checking" ? "#7c6cf8" : null;
+    vStatus === "checking" ? "#8e1616" : null;
 
   const validationConfig: Record<string, { bg: string; border: string; color: string; label: string }> = {
-    checking: { bg: "rgba(124,108,248,0.06)", border: "rgba(124,108,248,0.2)", color: "#9d91ff", label: "Checking system bindings…" },
+    checking: { bg: "rgba(142,22,22,0.05)", border: "rgba(142,22,22,0.18)", color: "#9d91ff", label: "Checking system bindings…" },
     valid:    { bg: "rgba(16,185,129,0.06)", border: "rgba(16,185,129,0.2)", color: "#10b981", label: "Valid IP & Fingerprint combination — Ready to confirm" },
     blocked:  { bg: "rgba(244,63,94,0.06)", border: "rgba(244,63,94,0.2)", color: "#f43f5e", label: "IP in Active Cooldown" },
     mismatch: { bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.2)", color: "#f59e0b", label: "Fingerprint Conflict" },
@@ -298,7 +298,7 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
   return (
     <div style={{ ...S.inlinePanel, background: T.bgInput, border: `1px solid ${T.borderInput}` }}>
       <div style={S.inlinePanelTitle}>
-        <span style={{ fontSize: 10, color: "#7c6cf8", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" as const }}>
+        <span style={{ fontSize: 10, color: "#8e1616", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" as const }}>
           Identity Verification System
         </span>
         {dotColor && (
@@ -325,7 +325,7 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
                   vStatus === "blocked"  ? "rgba(244,63,94,0.4)" :
                   vStatus === "mismatch" ? "rgba(245,158,11,0.4)" :
                   vStatus === "valid"    ? "rgba(16,185,129,0.4)" :
-                  vStatus === "checking" ? "rgba(124,108,248,0.4)" : T.borderInput,
+                  vStatus === "checking" ? "rgba(142,22,22,0.30)" : T.borderInput,
               }}
               value={uniqueId}
               onChange={(e) => handleUidChange(e.target.value)}
@@ -333,8 +333,8 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
               autoComplete="off"
               onFocus={(e) => {
                 if (vStatus === "idle") {
-                  e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
-                  e.currentTarget.style.boxShadow = "0 0 8px rgba(124,108,248,0.15)";
+                  e.currentTarget.style.borderColor = "rgba(142,22,22,0.30)";
+                  e.currentTarget.style.boxShadow = "0 0 8px rgba(142,22,22,0.14)";
                 }
               }}
               onBlur={(e) => {
@@ -352,7 +352,7 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
           <label style={{ ...S.inlineLabel, color: T.textSecondary }}>
             Device Fingerprint
             {validation.result.known_fingerprint && !fingerprint && (
-              <span style={{ color: "#7c6cf8", marginLeft: 6, fontSize: 9, fontWeight: 700 }}>
+              <span style={{ color: "#8e1616", marginLeft: 6, fontSize: 9, fontWeight: 700 }}>
                 (AUTO-FILLED)
               </span>
             )}
@@ -367,10 +367,10 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
                 flex: 1,
                 color: T.textPrimary,
                 borderColor: validation.result.known_fingerprint
-                  ? "rgba(124,108,248,0.3)"
+                  ? "rgba(142,22,22,0.28)"
                   : vStatus === "mismatch" ? "rgba(245,158,11,0.4)" : T.borderInput,
                 background: validation.result.known_fingerprint && !fingerprint
-                  ? "rgba(124,108,248,0.03)"
+                  ? "rgba(142,22,22,0.03)"
                   : T.bgInput,
               }}
               value={fingerprint}
@@ -379,8 +379,8 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
               autoComplete="off"
               onFocus={(e) => {
                 if (!validation.result.known_fingerprint) {
-                  e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
-                  e.currentTarget.style.boxShadow = "0 0 8px rgba(124,108,248,0.15)";
+                  e.currentTarget.style.borderColor = "rgba(142,22,22,0.30)";
+                  e.currentTarget.style.boxShadow = "0 0 8px rgba(142,22,22,0.14)";
                 }
               }}
               onBlur={(e) => {
@@ -483,7 +483,7 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
           disabled={confirming || vStatus === "checking"}
           onClick={handleConfirm}
           style={{
-            background:     confirming ? "rgba(124,108,248,0.35)" : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+            background:     confirming ? "rgba(142,22,22,0.30)" : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
             border:         "none",
             borderRadius:   8,
             color:          "#fff",
@@ -498,7 +498,7 @@ function InlineValidationPanel({ record }: { record: DBRecord }) {
             justifyContent: "center",
             gap:            6,
             transition:     "all 0.2s ease",
-            boxShadow:      confirming ? "none" : "0 4px 15px rgba(124,108,248,0.3)",
+            boxShadow:      confirming ? "none" : "0 4px 15px rgba(142,22,22,0.28)",
           }}
           onMouseEnter={(e) => {
             if (!confirming) e.currentTarget.style.opacity = "0.9";
@@ -731,7 +731,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
           background:   T.bgCard,
           borderRadius: "16px 16px 0 0",
         }}>
-          <span style={{ color: "#7c6cf8", fontSize: 11, fontWeight: 700 }}>
+          <span style={{ color: "#8e1616", fontSize: 11, fontWeight: 700 }}>
             {selCountOnScreen} selected
           </span>
           {pendingBulkDelete ? (
@@ -782,7 +782,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                     checked={allSelected}
                     onChange={() => toggleSelectAll(visibleIds)}
                     title={allSelected ? "Deselect all" : "Select all"}
-                    style={{ cursor: "pointer", accentColor: "#7c6cf8", width: 13, height: 13 }}
+                    style={{ cursor: "pointer", accentColor: "#8e1616", width: 13, height: 13 }}
                   />
                 </th>
                 {["Category", "IP Address", "Fingerprint", "Status", "Created At", "Actions"].map(
@@ -802,7 +802,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                 const isSelected  = selectedIds.has(r.id);
 
                 const rowBg = isSelected
-                  ? "rgba(124,108,248,0.07)"
+                  ? "rgba(142,22,22,0.06)"
                   : (hl.row.background as string | undefined) ?? "transparent";
 
                 return (
@@ -815,7 +815,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                         borderBottom:  `1px solid ${T.borderTableRow}`,
                         cursor:        "pointer",
                         animation:     `fadeUp 0.3s ease ${Math.min(i * 0.03, 0.2)}s both`,
-                        outline:       isSelected ? "1px solid rgba(124,108,248,0.18)" : "none",
+                        outline:       isSelected ? "1px solid rgba(142,22,22,0.18)" : "none",
                         outlineOffset: "-1px",
                       }}
                       onClick={() => toggleExpand(r.id)}
@@ -835,7 +835,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => {}}
-                          style={{ cursor: "pointer", accentColor: "#7c6cf8", width: 13, height: 13 }}
+                          style={{ cursor: "pointer", accentColor: "#8e1616", width: 13, height: 13 }}
                         />
                       </td>
 
@@ -906,7 +906,7 @@ export default function RecordsTable({ refreshTrigger }: RecordsTableProps) {
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={S.expandHint} onClick={() => toggleExpand(r.id)}>
                               {isExpanded
-                                ? <span style={{ color: "#7c6cf8", fontWeight: 600 }}>▲ Collapse</span>
+                                ? <span style={{ color: "#8e1616", fontWeight: 600 }}>▲ Collapse</span>
                                 : <span>▼ Details</span>}
                             </span>
                             <button
@@ -1207,9 +1207,9 @@ const S: Record<string, React.CSSProperties> = {
     fontFamily:   "inherit",
   },
   checkBtn: {
-    background:   "rgba(124,108,248,0.1)",
-    border:       "1px solid rgba(124,108,248,0.22)",
-    color:        "#a5a8ff",
+    background:   "rgba(142,22,22,0.08)",
+    border:       "1px solid rgba(142,22,22,0.22)",
+    color:        "#8e1616",
     borderRadius: 6,
     padding:      "5px 12px",
     fontSize:     11.5,

@@ -761,9 +761,9 @@ export default function AddressManagement() {
                 key={v}
                 onClick={() => setMainView(v)}
                 style={{
-                  background: mainView === v ? "rgba(91,110,245,0.2)" : "transparent",
+                  background: mainView === v ? "rgba(142,22,22,0.10)" : "transparent",
                   border: "none",
-                  color: mainView === v ? "#818cf8" : T.textMuted,
+                  color: mainView === v ? "#8e1616" : T.textMuted,
                   padding: "7px 14px", fontSize: 12,
                   fontWeight: mainView === v ? 600 : 400,
                   cursor: "pointer", fontFamily: "inherit",
@@ -793,7 +793,7 @@ export default function AddressManagement() {
               )}
               {addresses.length > 0 && selected.size < addresses.length && (
                 <button
-                  style={{ ...S.hideSelectedBtn, background: "rgba(124,108,248,0.1)", borderColor: "rgba(124,108,248,0.3)", color: "#a5a8ff" }}
+                  style={{ ...S.hideSelectedBtn, background: "rgba(142,22,22,0.08)", borderColor: "rgba(142,22,22,0.28)", color: "#8e1616" }}
                   onClick={selectAllInDB}
                   title={`Select all ${addresses.length} proxies in database`}
                 >
@@ -816,9 +816,9 @@ export default function AddressManagement() {
                   onClick={loadAllForVirtual}
                   disabled={loadingAll}
                   style={{
-                    background: loadingAll ? "rgba(124,108,248,0.06)" : "rgba(124,108,248,0.12)",
-                    border: "1px solid rgba(124,108,248,0.3)", borderRadius: 8,
-                    color: loadingAll ? "#6b71a8" : "#a5a8ff",
+                    background: loadingAll ? "rgba(142,22,22,0.04)" : "rgba(142,22,22,0.08)",
+                    border: "1px solid rgba(142,22,22,0.25)", borderRadius: 8,
+                    color: loadingAll ? "#aaaaaa" : "#8e1616",
                     fontSize: 11, fontWeight: 600, padding: "6px 13px",
                     cursor: loadingAll ? "default" : "pointer", fontFamily: "inherit",
                     display: "flex", alignItems: "center", gap: 6,
@@ -864,7 +864,7 @@ export default function AddressManagement() {
 
       {/* Summary chips */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" as const }}>
-        <SummaryChip label="Total (DB)"  count={totalCount}      color="#818cf8" />
+        <SummaryChip label="Total (DB)"  count={totalCount}      color="#8e1616" />
         <SummaryChip label="Unassigned" count={unassignedCount} color="#f59e0b" />
         <SummaryChip label="Assigned"   count={assignedCount}   color="#22c55e" />
         {hiddenTableIds.size > 0 && mainView === "table" && (
@@ -973,7 +973,7 @@ export default function AddressManagement() {
                   {/* CSV load stats — shown after upload */}
                   {csvStats && (
                     <div style={S.csvStats}>
-                      <span style={{ color: "#818cf8", fontSize: 12, fontWeight: 600 }}>📄 CSV loaded</span>
+                      <span style={{ color: "#8e1616", fontSize: 12, fontWeight: 600 }}>📄 CSV loaded</span>
                       <span style={{ color: "#8b92a8", fontSize: 11 }}>
                         {csvStats.loaded} address{csvStats.loaded !== 1 ? "es" : ""} ready to import
                         {csvStats.raw !== csvStats.loaded
@@ -1205,7 +1205,7 @@ export default function AddressManagement() {
                 {/* Footer count */}
                 <div style={{ padding: "8px 14px", borderTop: `1px solid ${T.dividerSolid}`, color: T.textMuted, fontSize: 11 }}>
                   Showing all <strong style={{ color: T.textSecondary }}>{vsFiltered.length.toLocaleString()}</strong> proxies
-                  {selected.size > 0 && <span style={{ marginLeft: 12, color: "#a5a8ff" }}>{selected.size.toLocaleString()} selected</span>}
+                  {selected.size > 0 && <span style={{ marginLeft: 12, color: "#8e1616" }}>{selected.size.toLocaleString()} selected</span>}
                 </div>
               </div>
             );
@@ -1350,9 +1350,9 @@ export default function AddressManagement() {
                 onClick={() => { const p = Math.max(1, page - 1); setPage(p); setSelected(new Set()); }}
                 disabled={page === 1}
                 style={{
-                  background: page === 1 ? T.bgBtn : "rgba(124,108,248,0.12)",
-                  border: "1px solid rgba(124,108,248,0.25)", borderRadius: 7,
-                  color: page === 1 ? T.textMuted : "#a5a8ff", fontSize: 12, fontWeight: 600,
+                  background: page === 1 ? "transparent" : "rgba(142,22,22,0.08)",
+                  border: "1px solid rgba(142,22,22,0.22)", borderRadius: 7,
+                  color: page === 1 ? T.textMuted : "#8e1616", fontSize: 12, fontWeight: 600,
                   padding: "6px 16px", cursor: page === 1 ? "default" : "pointer", fontFamily: "inherit",
                 }}
               >
@@ -1368,9 +1368,9 @@ export default function AddressManagement() {
                 onClick={() => { const p = Math.min(totalPages, page + 1); setPage(p); setSelected(new Set()); }}
                 disabled={page === totalPages}
                 style={{
-                  background: page === totalPages ? T.bgBtn : "rgba(124,108,248,0.12)",
-                  border: "1px solid rgba(124,108,248,0.25)", borderRadius: 7,
-                  color: page === totalPages ? T.textMuted : "#a5a8ff", fontSize: 12, fontWeight: 600,
+                  background: page === totalPages ? "transparent" : "rgba(142,22,22,0.08)",
+                  border: "1px solid rgba(142,22,22,0.22)", borderRadius: 7,
+                  color: page === totalPages ? T.textMuted : "#8e1616", fontSize: 12, fontWeight: 600,
                   padding: "6px 16px", cursor: page === totalPages ? "default" : "pointer", fontFamily: "inherit",
                 }}
               >
@@ -1385,7 +1385,7 @@ export default function AddressManagement() {
       {mainView === "work" && (
         <>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
-            <WorkStatCard label="Visible"   value={workDisplayed.length} color="#818cf8" />
+            <WorkStatCard label="Visible"   value={workDisplayed.length} color="#8e1616" />
             <WorkStatCard label="Pending"   value={workPending}          color="#f59e0b" />
             <WorkStatCard label="Completed" value={workCompleted}        color="#22c55e" />
             <WorkStatCard label="Failed"    value={workFailed}           color="#ef4444" />
@@ -1409,8 +1409,8 @@ export default function AddressManagement() {
                   >
                     {f === "all" ? "All" : f}
                     <span style={{
-                      background: workFilter === f ? "rgba(91,110,245,0.25)" : T.bgBtn,
-                      color: workFilter === f ? "#818cf8" : T.textMuted,
+                      background: workFilter === f ? "rgba(142,22,22,0.12)" : T.bgBtn,
+                      color: workFilter === f ? "#8e1616" : T.textMuted,
                       borderRadius: 99, padding: "1px 6px", fontSize: 10, marginLeft: 4,
                     }}>{count}</span>
                   </button>
@@ -1600,8 +1600,8 @@ export default function AddressManagement() {
                     )}
 
                     {/* IP count badge */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.18)", borderRadius: 8 }}>
-                      <span style={{ color: "#38bdf8", fontWeight: 700, fontSize: 13 }}>{selected.size}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "rgba(142,22,22,0.05)", border: "1px solid rgba(142,22,22,0.18)", borderRadius: 8 }}>
+                      <span style={{ color: "#8e1616", fontWeight: 700, fontSize: 13 }}>{selected.size}</span>
                       <span style={{ color: T.textMuted, fontSize: 12 }}>proxy IP{selected.size !== 1 ? "s" : ""} selected for assignment</span>
                     </div>
 
@@ -1669,9 +1669,9 @@ export default function AddressManagement() {
                                   setAssignStep(stepKey);
                                 }}
                                 style={{
-                                  background: resFetching || pool.length === 0 ? "rgba(255,255,255,0.03)" : "rgba(56,189,248,0.1)",
-                                  border: `1px solid ${resFetching || pool.length === 0 ? "rgba(255,255,255,0.08)" : "rgba(56,189,248,0.25)"}`,
-                                  borderRadius: 5, color: resFetching || pool.length === 0 ? T.textMuted : "#38bdf8",
+                                  background: resFetching || pool.length === 0 ? "transparent" : "rgba(142,22,22,0.08)",
+                                  border: `1px solid ${resFetching || pool.length === 0 ? "rgba(0,0,0,0.10)" : "rgba(142,22,22,0.28)"}`,
+                                  borderRadius: 5, color: resFetching || pool.length === 0 ? T.textMuted : "#8e1616",
                                   fontSize: 10, fontWeight: 600, padding: "4px 10px",
                                   cursor: resFetching || pool.length === 0 ? "not-allowed" : "pointer",
                                   fontFamily: "inherit",
@@ -1749,9 +1749,9 @@ export default function AddressManagement() {
                               display: "flex", alignItems: "center", gap: 12,
                               padding: "10px 16px", cursor: "pointer",
                               background: isSel
-                                ? "rgba(56,189,248,0.08)"
+                                ? "rgba(142,22,22,0.06)"
                                 : "transparent",
-                              borderLeft: `3px solid ${isSel ? "#38bdf8" : "transparent"}`,
+                              borderLeft: `3px solid ${isSel ? "#8e1616" : "transparent"}`,
                               transition: "background 0.12s ease",
                             }}
                             onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
@@ -1760,11 +1760,11 @@ export default function AddressManagement() {
                             {/* Radio dot */}
                             <div style={{
                               width: 16, height: 16, borderRadius: "50%",
-                              border: `2px solid ${isSel ? "#38bdf8" : "rgba(255,255,255,0.2)"}`,
+                              border: `2px solid ${isSel ? "#8e1616" : "rgba(0,0,0,0.20)"}`,
                               display: "flex", alignItems: "center", justifyContent: "center",
                               flexShrink: 0, transition: "border-color 0.12s",
                             }}>
-                              {isSel && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#38bdf8" }} />}
+                              {isSel && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#8e1616" }} />}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ color: T.textPrimary, fontSize: 12, fontWeight: isSel ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
@@ -1774,7 +1774,7 @@ export default function AddressManagement() {
                                 <div style={{ color: T.textMuted, fontSize: 10.5, marginTop: 1 }}>{item.notes}</div>
                               )}
                             </div>
-                            {isSel && <span style={{ color: "#38bdf8", fontSize: 13, flexShrink: 0 }}>✓</span>}
+                            {isSel && <span style={{ color: "#8e1616", fontSize: 13, flexShrink: 0 }}>✓</span>}
                           </div>
                         );
                       })
@@ -1785,7 +1785,7 @@ export default function AddressManagement() {
                   <div style={{ ...S.modalFooter, borderTop: `1px solid ${T.dividerSolid}`, flexShrink: 0 }}>
                     <div style={{ flex: 1, color: T.textMuted, fontSize: 11 }}>
                       {filteredPool.length} item{filteredPool.length !== 1 ? "s" : ""} available
-                      {pickerTempId && <span style={{ color: "#38bdf8", marginLeft: 8 }}>1 selected</span>}
+                      {pickerTempId && <span style={{ color: "#8e1616", marginLeft: 8 }}>1 selected</span>}
                     </div>
                     <button
                       style={{ ...S.cancelBtn, background: T.bgBtn, border: `1px solid ${T.borderBtn}`, color: T.textSecondary }}
@@ -1912,17 +1912,17 @@ function LoadingSkeleton() {
 
 const S: Record<string, React.CSSProperties> = {
   addBtn: {
-    background: "#4f46e5", border: "none", color: "#fff",
+    background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)", border: "none", color: "#fff",
     borderRadius: 7, padding: "9px 16px", fontSize: 12, fontWeight: 600,
-    cursor: "pointer", fontFamily: "inherit",
+    cursor: "pointer", fontFamily: "inherit", boxShadow: "0 2px 8px rgba(142,22,22,0.22)",
   },
   addBtnActive: {
-    background: "rgba(91,110,245,0.15)", border: "1px solid rgba(91,110,245,0.3)", color: "#818cf8",
+    background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)", color: "#8e1616",
     borderRadius: 7, padding: "9px 16px", fontSize: 12, fontWeight: 600,
     cursor: "pointer", fontFamily: "inherit",
   },
   assignBtn: {
-    background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.25)", color: "#38bdf8",
+    background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)", color: "#8e1616",
     borderRadius: 7, padding: "9px 14px", fontSize: 12, fontWeight: 600,
     cursor: "pointer", fontFamily: "inherit",
   },
@@ -1941,7 +1941,7 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
   },
   showHiddenBtn: {
-    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#8b92a8",
+    background: "transparent", border: "1px solid rgba(0,0,0,0.12)", color: "#444466",
     borderRadius: 7, padding: "7px 13px", fontSize: 12,
     cursor: "pointer", fontFamily: "inherit",
   },
@@ -1961,9 +1961,9 @@ const S: Record<string, React.CSSProperties> = {
     borderBottom: "2px solid transparent",
   },
   panelTabActive: {
-    background: "none", border: "none", color: "#818cf8",
+    background: "none", border: "none", color: "#8e1616",
     padding: "10px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit",
-    borderBottom: "2px solid #4f46e5", fontWeight: 600,
+    borderBottom: "2px solid #8e1616", fontWeight: 600,
   },
   panelClose: {
     background: "none", border: "none", color: "#4a5166",
@@ -1981,8 +1981,8 @@ const S: Record<string, React.CSSProperties> = {
   },
   filterTabActive: {
     display: "inline-flex", alignItems: "center",
-    background: "rgba(91,110,245,0.12)", border: "1px solid rgba(91,110,245,0.28)",
-    borderRadius: 8, color: "#818cf8", fontSize: 12, fontWeight: 600,
+    background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.28)",
+    borderRadius: 8, color: "#8e1616", fontSize: 12, fontWeight: 600,
     padding: "6px 12px", cursor: "pointer", fontFamily: "inherit",
   },
   searchInput: {
@@ -2002,7 +2002,7 @@ const S: Record<string, React.CSSProperties> = {
     color: "#f0f2f8", padding: "4px 8px", fontSize: 12, fontFamily: "inherit", outline: "none", width: 64,
   },
   selBtn: {
-    background: "#1e293b", border: "1px solid rgba(255,255,255,0.07)", color: "#8b92a8",
+    background: "transparent", border: "1px solid rgba(142,22,22,0.22)", color: "#8e1616",
     borderRadius: 5, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontFamily: "inherit",
   },
   clearSelBtn: {
@@ -2050,25 +2050,26 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: 6, padding: "8px 16px", fontSize: 12, cursor: "pointer", fontFamily: "inherit",
   },
   submitBtn: {
-    background: "#4f46e5", border: "none", color: "#fff",
+    background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)", border: "none", color: "#fff",
     borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+    boxShadow: "0 2px 8px rgba(142,22,22,0.22)",
   },
   submitBtnDisabled: {
     background: "rgba(255,255,255,0.04)", border: "none", color: "#2e3347",
     borderRadius: 6, padding: "8px 20px", fontSize: 12, fontWeight: 600, cursor: "not-allowed", fontFamily: "inherit",
   },
   csvBtn: {
-    background: "#1e293b", border: "1px solid rgba(255,255,255,0.07)", color: "#8b92a8",
+    background: "transparent", border: "1px solid rgba(142,22,22,0.22)", color: "#8e1616",
     borderRadius: 5, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontFamily: "inherit",
   },
   csvStats: {
-    background: "rgba(129,140,248,0.06)", border: "1px solid rgba(129,140,248,0.18)",
+    background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.14)",
     borderRadius: 8, padding: "10px 14px",
     display: "flex", flexDirection: "column", gap: 4,
   },
   bulkPreview: {
-    background: "#0f1320", border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 5, padding: "6px 10px", color: "#818cf8", fontSize: 11,
+    background: "rgba(142,22,22,0.04)", border: "1px solid rgba(142,22,22,0.12)",
+    borderRadius: 5, padding: "6px 10px", color: "#8e1616", fontSize: 11,
   },
   bulkResult: {
     background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",

@@ -181,7 +181,7 @@ function ValidationResultBox({
   if (result.status === "idle") return null;
 
   const config: Record<string, { bg: string; border: string; color: string; label: string }> = {
-    checking: { bg: "rgba(124,108,248,0.06)",  border: "rgba(124,108,248,0.2)",  color: "#9d91ff", label: "Checking system bindings…" },
+    checking: { bg: "rgba(142,22,22,0.05)",  border: "rgba(142,22,22,0.18)",  color: "#9d91ff", label: "Checking system bindings…" },
     valid:    { bg: "rgba(16,185,129,0.06)",   border: "rgba(16,185,129,0.2)",   color: "#10b981", label: "Valid IP & Fingerprint combination — Ready to confirm" },
     blocked:  { bg: "rgba(244,63,94,0.06)",    border: "rgba(244,63,94,0.2)",    color: "#f43f5e", label: "IP in Active Cooldown" },
     mismatch: { bg: "rgba(245,158,11,0.06)",   border: "rgba(245,158,11,0.2)",   color: "#f59e0b", label: "Fingerprint Conflict" },
@@ -457,15 +457,15 @@ export default function AddressWorkCard({
 
   return (
     <div style={{
-      background:     expanded ? "rgba(124,108,248,0.02)" : "rgba(13,16,34,0.65)",
-      border:         `1px solid ${expanded ? "rgba(124,108,248,0.3)" : "rgba(255,255,255,0.06)"}`,
+      background:     expanded ? "rgba(142,22,22,0.02)" : "rgba(13,16,34,0.65)",
+      border:         `1px solid ${expanded ? "rgba(142,22,22,0.28)" : "rgba(255,255,255,0.06)"}`,
       borderLeft:     `3px solid ${sc.border.replace("rgba", "rgb")}`,
       borderRadius:   14,
       overflow:       "hidden",
       animation:      `fadeUp 0.3s ease ${animDelay}s both`,
       transition:     "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
       backdropFilter: "blur(16px) saturate(1.5)",
-      boxShadow:      expanded ? "0 4px 20px rgba(124,108,248,0.08)" : "0 4px 12px rgba(0,0,0,0.15)",
+      boxShadow:      expanded ? "0 4px 20px rgba(142,22,22,0.06)" : "0 4px 12px rgba(0,0,0,0.15)",
     }}>
 
       {/* ── Header (collapsed) ── */}
@@ -488,7 +488,7 @@ export default function AddressWorkCard({
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
             {employeeName && (
-              <span style={{ color: "#7c6cf8", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: "#8e1616", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
@@ -522,11 +522,11 @@ export default function AddressWorkCard({
               background:
                 validation.result.status === "valid"    ? "#10b981" :
                 validation.result.status === "blocked"  ? "#f43f5e" :
-                validation.result.status === "mismatch" ? "#f59e0b" : "#7c6cf8",
+                validation.result.status === "mismatch" ? "#f59e0b" : "#8e1616",
               boxShadow: `0 0 8px ${
                 validation.result.status === "valid"    ? "#10b981" :
                 validation.result.status === "blocked"  ? "#f43f5e" :
-                validation.result.status === "mismatch" ? "#f59e0b" : "#7c6cf8"
+                validation.result.status === "mismatch" ? "#f59e0b" : "#8e1616"
               }`,
               animation: "pulseDot 1.4s infinite ease-in-out",
             }} />
@@ -582,7 +582,7 @@ export default function AddressWorkCard({
           {/* Validation inputs */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <span style={{
-              color: "#7c6cf8", fontSize: 10, fontWeight: 600,
+              color: "#8e1616", fontSize: 10, fontWeight: 600,
               letterSpacing: 1, textTransform: "uppercase" as const,
             }}>
               Identity Verification System
@@ -599,8 +599,8 @@ export default function AddressWorkCard({
                     placeholder="e.g. 192.168.1.1"
                     autoComplete="off"
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
-                      e.currentTarget.style.boxShadow   = "0 0 8px rgba(124,108,248,0.15)";
+                      e.currentTarget.style.borderColor = "rgba(142,22,22,0.30)";
+                      e.currentTarget.style.boxShadow   = "0 0 8px rgba(142,22,22,0.14)";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
@@ -618,7 +618,7 @@ export default function AddressWorkCard({
                     style={{
                       ...taskInput,
                       borderColor: validation.result.known_fingerprint
-                        ? "rgba(124,108,248,0.3)"
+                        ? "rgba(142,22,22,0.28)"
                         : "rgba(255,255,255,0.08)",
                     }}
                     value={fingerprint}
@@ -626,12 +626,12 @@ export default function AddressWorkCard({
                     placeholder="e.g. FP-A4B2C"
                     autoComplete="off"
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(124,108,248,0.4)";
-                      e.currentTarget.style.boxShadow   = "0 0 8px rgba(124,108,248,0.15)";
+                      e.currentTarget.style.borderColor = "rgba(142,22,22,0.30)";
+                      e.currentTarget.style.boxShadow   = "0 0 8px rgba(142,22,22,0.14)";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = validation.result.known_fingerprint
-                        ? "rgba(124,108,248,0.3)"
+                        ? "rgba(142,22,22,0.28)"
                         : "rgba(255,255,255,0.08)";
                       e.currentTarget.style.boxShadow = "none";
                     }}

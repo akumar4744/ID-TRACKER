@@ -64,12 +64,12 @@ export const light: ThemeTokens = {
   navActiveGrad:   "rgba(142,22,22,0.06)",
   navActiveBorder: "rgba(142,22,22,0.18)",
   navActiveColor:  "#8e1616",
-  navInactiveColor:"#9a9ab0",
+  navInactiveColor:"#111111",
   navSectionLabel: "#c8c8d8",
 
   textPrimary:   "#1a1a2e",
   textSecondary: "#444466",
-  textMuted:     "#8888aa",
+  textMuted:     "#111111",
   textTertiary:  "#bbbbcc",
 
   bgCard:     "#ffffff",

@@ -310,10 +310,10 @@ export default function SecuritySettings() {
 // ── styles / atoms ─────────────────────────────────────────────────────────
 
 const primaryBtn: React.CSSProperties = {
-  background: "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+  background: "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
   border: "none", color: "#fff", borderRadius: 8, padding: "10px 18px",
   fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-  boxShadow: "0 4px 16px rgba(124,108,248,0.3)",
+  boxShadow: "0 4px 16px rgba(142,22,22,0.28)",
 };
 function secondaryBtn(T: ReturnType<typeof useTheme>["T"]): React.CSSProperties {
   return {

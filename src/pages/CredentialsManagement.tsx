@@ -141,12 +141,12 @@ export default function CredentialsManagement() {
           onClick={() => { setShowForm((v) => !v); setErr(""); }}
           style={{
             display: "flex", alignItems: "center", gap: 7,
-            background: showForm ? T.bgBtn : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+            background: showForm ? T.bgBtn : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
             border: showForm ? `1px solid ${T.borderBtn}` : "none",
             color: showForm ? T.textSecondary : "#fff",
             borderRadius: 9, padding: "9px 16px",
             fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-            boxShadow: showForm ? "none" : "0 4px 16px rgba(124,108,248,0.3)",
+            boxShadow: showForm ? "none" : "0 4px 16px rgba(142,22,22,0.28)",
           }}
         >
           {showForm ? "✕ Cancel" : "+ Add & Send Credential"}
@@ -216,13 +216,13 @@ export default function CredentialsManagement() {
               disabled={saving}
               style={{
                 background: saving
-                  ? "rgba(124,108,248,0.35)"
-                  : "linear-gradient(135deg, #7c6cf8 0%, #5b50d6 100%)",
+                  ? "rgba(142,22,22,0.30)"
+                  : "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
                 border: "none", color: "#fff",
                 borderRadius: 8, padding: "9px 22px",
                 fontSize: 13, fontWeight: 600,
                 cursor: saving ? "not-allowed" : "pointer", fontFamily: "inherit",
-                boxShadow: saving ? "none" : "0 4px 16px rgba(124,108,248,0.3)",
+                boxShadow: saving ? "none" : "0 4px 16px rgba(142,22,22,0.28)",
               }}
             >
               {saving ? "Saving…" : "📤 Save & Send"}
@@ -284,8 +284,8 @@ export default function CredentialsManagement() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <span style={{
-                      background: "rgba(124,108,248,0.1)", border: "1px solid rgba(124,108,248,0.22)",
-                      color: "#a5a8ff", borderRadius: 6, padding: "3px 10px",
+                      background: "rgba(142,22,22,0.08)", border: "1px solid rgba(142,22,22,0.22)",
+                      color: "#8e1616", borderRadius: 6, padding: "3px 10px",
                       fontSize: 11, fontWeight: 700,
                     }}>{c.platform}</span>
                     <span style={{ color: T.textSecondary, fontSize: 12, fontWeight: 600 }}>
