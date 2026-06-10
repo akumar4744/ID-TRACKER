@@ -1493,12 +1493,13 @@ function TaskCard({
         )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 8, minWidth: 0, flexWrap: "wrap" as const }}>
             <span style={{
               color: "#eef0f8", fontSize: 13.5, fontWeight: 600,
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-              maxWidth: 320,
+              wordBreak: "break-all" as const,
               letterSpacing: 0.1,
+              lineHeight: 1.5,
+              flex: 1, minWidth: 0,
             }}
               title={assignment.address_text}
             >
