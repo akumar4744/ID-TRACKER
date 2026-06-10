@@ -129,15 +129,21 @@ export default function AddressManagement() {
   const [addPanel,   setAddPanel]   = useState<AddPanel>("none");
 
   // ── Virtual scroll state ──────────────────────────────────────────────────
-  const [virtualMode,   setVirtualMode]   = useState(false);
+  // Virtual mode is the default — every row visible in a smooth-scrolling
+  // window. The paginated mode is still available as a fallback toggle.
+  const [virtualMode,   setVirtualMode]   = useState(true);
   const [allRows,       setAllRows]       = useState<AddressRow[]>([]);
   const [loadingAll,    setLoadingAll]    = useState(false);
   const [loadedCount,   setLoadedCount]   = useState(0);
   const [vsScrollTop,   setVsScrollTop]   = useState(0);
   const vsContainerRef  = useRef<HTMLDivElement>(null);
+  const autoLoadedOnce  = useRef(false);
   const VS_ROW_H        = 50;
   const VS_OVERSCAN     = 25;
-  const VS_H            = 'calc(100vh - 310px)';
+  // Min height keeps the table visible even on small screens; calc() lets it
+  // expand to use the rest of the viewport so the user scrolls smoothly
+  // through every row.
+  const VS_H            = 'min(72vh, calc(100vh - 280px))';
 
   // Frontend-only hide for TABLE view (never touches DB)
   const [hiddenTableIds,     setHiddenTableIds]     = useState<Set<string>>(new Set());
@@ -163,7 +169,8 @@ export default function AddressManagement() {
 
   // Assign modal
   const [showAssign,    setShowAssign]    = useState(false);
-  const [assignTo,        setAssignTo]        = useState("");
+  const [assignTo,        setAssignTo]        = useState<string[]>([]);  // multi-select: array of employee IDs
+  const [empSearch,       setEmpSearch]       = useState("");
   const [assignCategory,  setAssignCategory]  = useState("");
   const [assignCache,     setAssignCache]     = useState("");    // confirmed cache value
   const [assignKeywords,  setAssignKeywords]  = useState("");    // confirmed keywords value
@@ -358,6 +365,20 @@ export default function AddressManagement() {
   useEffect(() => {
     if (mainView === "work") fetchAssignments();
   }, [mainView, fetchAssignments]);
+
+  // ── Auto-trigger virtual scroll on first load when in table view ──────────
+  // Once we know how many rows exist, load them all so the user can scroll
+  // through every row without paginating. Runs exactly once per session.
+  useEffect(() => {
+    if (mainView !== "table") return;
+    if (autoLoadedOnce.current) return;
+    if (loading || loadingAll) return;
+    if (totalCount <= 0) return;
+    autoLoadedOnce.current = true;
+    setVirtualMode(true);
+    loadAllForVirtual();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainView, loading, totalCount]);
 
   // ── Realtime ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -560,22 +581,35 @@ export default function AddressManagement() {
 
   // ── Assign ────────────────────────────────────────────────────────────────
   async function handleAssign() {
-    if (!assignTo) { setAssignErr("Select an employee."); return; }
-    if (selected.size === 0) { setAssignErr("Select at least one address."); return; }
+    if (assignTo.length === 0) { setAssignErr("Select at least one employee."); return; }
+    if (selected.size === 0)   { setAssignErr("Select at least one address."); return; }
     setAssigning(true); setAssignErr(""); setAssignMsg("");
     const selectedIds = Array.from(selected);
-    const { data, error } = await supabase.rpc("assign_addresses", {
-      p_address_ids: selectedIds, p_employee_id: assignTo,
-    });
-    if (error) { setAssigning(false); setAssignErr(error.message); return; }
-    const result = data as { ok: boolean; error?: string; assigned?: number };
-    if (!result.ok) { setAssigning(false); setAssignErr(result.error ?? "Assignment failed"); return; }
 
-    // Save category
+    // Loop the assign_addresses RPC once per employee.
+    // Each call creates an address_assignments row for that employee.
+    let totalAssigned = 0;
+    const failedEmps: string[] = [];
+    for (const empId of assignTo) {
+      const { data, error } = await supabase.rpc("assign_addresses", {
+        p_address_ids: selectedIds, p_employee_id: empId,
+      });
+      if (error) { failedEmps.push(empId); continue; }
+      const result = data as { ok: boolean; error?: string; assigned?: number };
+      if (!result.ok) { failedEmps.push(empId); continue; }
+      totalAssigned += result.assigned ?? 0;
+    }
+    if (totalAssigned === 0) {
+      setAssigning(false);
+      setAssignErr(`Assignment failed for all ${assignTo.length} employee${assignTo.length !== 1 ? "s" : ""}.`);
+      return;
+    }
+
+    // Save category for every (employee, address) pair touched
     if (assignCategory.trim()) {
       const trimmed = assignCategory.trim();
       await supabase.from("address_assignments").update({ category: trimmed })
-        .eq("employee_id", assignTo).in("address_id", selectedIds);
+        .in("employee_id", assignTo).in("address_id", selectedIds);
       await supabase.from("addresses").update({ notes: trimmed }).in("id", selectedIds);
     }
 
@@ -587,7 +621,7 @@ export default function AddressManagement() {
         keywords:    assignKeywords.trim()  || null,
         smartlink:   assignSmartlink.trim() || null,
         locked_meta: true,
-      }).eq("employee_id", assignTo).in("address_id", selectedIds);
+      }).in("employee_id", assignTo).in("address_id", selectedIds);
     }
 
     // Lock selected resource items to these IPs (mark as assigned)
@@ -601,7 +635,11 @@ export default function AddressManagement() {
     }
 
     setAssigning(false);
-    setAssignMsg(`✅ ${result.assigned} address${result.assigned !== 1 ? "es" : ""} assigned.`);
+    const empCount = assignTo.length - failedEmps.length;
+    setAssignMsg(
+      `✅ ${totalAssigned} address-assignment${totalAssigned !== 1 ? "s" : ""} created across ${empCount} employee${empCount !== 1 ? "s" : ""}.` +
+      (failedEmps.length > 0 ? ` ${failedEmps.length} failed.` : "")
+    );
     setSelected(new Set()); setShowAssign(false);
     resetAssignState();
     // In virtual mode refresh allRows so assignment + category update immediately.
@@ -647,7 +685,7 @@ export default function AddressManagement() {
 
   // ── Reset all assign modal state ──────────────────────────────────────────
   function resetAssignState() {
-    setAssignTo(""); setAssignCategory("");
+    setAssignTo([]); setEmpSearch(""); setAssignCategory("");
     setAssignCache(""); setAssignKeywords(""); setAssignSmartlink("");
     setAssignStep("main");
     setSelCacheId(""); setSelKwId(""); setSelSlId("");
@@ -1104,7 +1142,10 @@ export default function AddressManagement() {
                 (a.notes?.toLowerCase().includes(q) ?? false);
               return matchFilter && matchSearch;
             });
-            const containerPxH = window.innerHeight - 310;
+            // Compute available pixel height the same way as VS_H so the
+            // visible-window math stays in sync as the viewport resizes.
+            const containerPxH = vsContainerRef.current?.clientHeight
+              ?? Math.min(window.innerHeight * 0.72, window.innerHeight - 280);
             const totalVsH     = vsFiltered.length * VS_ROW_H;
             const startIdx     = Math.max(0, Math.floor(vsScrollTop / VS_ROW_H) - VS_OVERSCAN);
             const endIdx       = Math.min(vsFiltered.length - 1,
@@ -1691,20 +1732,133 @@ export default function AddressManagement() {
                       </div>
                     )}
 
-                    {/* Employee */}
-                    <div>
-                      <label style={{ ...S.label, color: T.textMuted, marginBottom: 4 }}>Assign to Employee</label>
-                      <select
-                        style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary, width: "100%", marginTop: 4 }}
-                        value={assignTo}
-                        onChange={(e) => setAssignTo(e.target.value)}
-                      >
-                        <option value="">— Select employee —</option>
-                        {employees.filter((e) => e.status === "active").map((e) => (
-                          <option key={e.id} value={e.id}>{e.full_name || e.email}</option>
-                        ))}
-                      </select>
-                    </div>
+                    {/* Employees — multi-select with search */}
+                    {(() => {
+                      const activeEmps      = employees.filter((e) => e.status === "active");
+                      const q               = empSearch.trim().toLowerCase();
+                      const filteredEmps    = q === ""
+                        ? activeEmps
+                        : activeEmps.filter((e) =>
+                            (e.full_name?.toLowerCase().includes(q) ?? false) ||
+                            (e.email?.toLowerCase().includes(q) ?? false)
+                          );
+                      const allFilteredIds  = filteredEmps.map((e) => e.id);
+                      const allSelected     = filteredEmps.length > 0 &&
+                                              allFilteredIds.every((id) => assignTo.includes(id));
+
+                      function toggleEmp(id: string) {
+                        setAssignTo((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+                      }
+                      function toggleAllFiltered() {
+                        if (allSelected) {
+                          setAssignTo((prev) => prev.filter((id) => !allFilteredIds.includes(id)));
+                        } else {
+                          setAssignTo((prev) => Array.from(new Set([...prev, ...allFilteredIds])));
+                        }
+                      }
+
+                      return (
+                        <div>
+                          <label style={{ ...S.label, color: T.textMuted, marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span>
+                              Assign to Employees
+                              {assignTo.length > 0 && (
+                                <span style={{ marginLeft: 6, color: "#8e1616", fontSize: 10, fontWeight: 700 }}>
+                                  ({assignTo.length} selected)
+                                </span>
+                              )}
+                            </span>
+                            {assignTo.length > 0 && (
+                              <button
+                                onClick={() => setAssignTo([])}
+                                style={{ background: "none", border: "none", color: T.textMuted, fontSize: 10, cursor: "pointer", fontFamily: "inherit", padding: 0 }}
+                              >
+                                Clear all
+                              </button>
+                            )}
+                          </label>
+
+                          {/* Search + select-all bar */}
+                          <div style={{ display: "flex", gap: 6, marginTop: 4, marginBottom: 6 }}>
+                            <input
+                              style={{ ...S.input, background: T.bgInput, border: `1px solid ${T.borderInput}`, color: T.textPrimary, flex: 1, padding: "7px 10px", fontSize: 12 }}
+                              value={empSearch}
+                              onChange={(e) => setEmpSearch(e.target.value)}
+                              placeholder="Search employee…"
+                              autoComplete="off"
+                            />
+                            {filteredEmps.length > 0 && (
+                              <button
+                                onClick={toggleAllFiltered}
+                                style={{
+                                  background: allSelected ? "rgba(142,22,22,0.08)" : "transparent",
+                                  border: "1px solid rgba(142,22,22,0.28)",
+                                  borderRadius: 7, color: "#8e1616",
+                                  fontSize: 11, fontWeight: 600, padding: "0 12px",
+                                  cursor: "pointer", fontFamily: "inherit",
+                                  whiteSpace: "nowrap" as const, flexShrink: 0,
+                                }}
+                              >
+                                {allSelected ? "Deselect all" : "Select all"}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Scrollable employee checkbox list */}
+                          <div style={{
+                            background: T.bgInput, border: `1px solid ${T.borderInput}`,
+                            borderRadius: 7, maxHeight: 200, overflowY: "auto",
+                          }}>
+                            {filteredEmps.length === 0 ? (
+                              <div style={{ padding: "16px 12px", color: T.textMuted, fontSize: 12, textAlign: "center" as const }}>
+                                {empSearch ? `No employees match "${empSearch}"` : "No active employees."}
+                              </div>
+                            ) : (
+                              filteredEmps.map((e) => {
+                                const isSel = assignTo.includes(e.id);
+                                return (
+                                  <label
+                                    key={e.id}
+                                    style={{
+                                      display: "flex", alignItems: "center", gap: 10,
+                                      padding: "8px 12px", cursor: "pointer",
+                                      borderBottom: "1px solid rgba(0,0,0,0.04)",
+                                      background: isSel ? "rgba(142,22,22,0.05)" : "transparent",
+                                      transition: "background 0.12s ease",
+                                    }}
+                                    onMouseEnter={(ev) => { if (!isSel) ev.currentTarget.style.background = "rgba(0,0,0,0.025)"; }}
+                                    onMouseLeave={(ev) => { if (!isSel) ev.currentTarget.style.background = "transparent"; }}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSel}
+                                      onChange={() => toggleEmp(e.id)}
+                                      style={{ cursor: "pointer", accentColor: "#8e1616", flexShrink: 0 }}
+                                    />
+                                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 1 }}>
+                                      <span style={{ color: T.textPrimary, fontSize: 12, fontWeight: isSel ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                        {e.full_name || e.email}
+                                      </span>
+                                      {e.full_name && (
+                                        <span style={{ color: T.textMuted, fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                          {e.email}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </label>
+                                );
+                              })
+                            )}
+                          </div>
+
+                          {assignTo.length > 1 && (
+                            <div style={{ marginTop: 6, fontSize: 10.5, color: T.textMuted }}>
+                              The same {selected.size} IP{selected.size !== 1 ? "s" : ""} will be assigned to each of the {assignTo.length} selected employees.
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {assignErr && <div style={S.errorBox}>⚠ {assignErr}</div>}
                   </div>
