@@ -15,6 +15,9 @@ import { signOut } from "../lib/auth";
 import { useScreenShare } from "../hooks/useScreenShare";
 import { useValidation } from "../hooks/useValidation";
 import { OverlayGuide } from "../components/OverlayGuide";
+import RecordsTable from "../components/RecordsTable";
+import AddRecordModal from "../components/AddRecordModal";
+import { ThemeCtx, dark } from "../lib/theme";
 import type { UserProfile } from "../lib/auth";
 
 interface Assignment {
@@ -147,7 +150,11 @@ export default function EmployeeDashboard({ onLogout, profile }: EmployeeDashboa
 
   const [adminTasks,   setAdminTasks]   = useState<AdminTask[]>([]);
   const [taskUpdating, setTaskUpdating] = useState<string | null>(null);
-  const [dashView,     setDashView]     = useState<"proxy" | "tasks">("proxy");
+  const [dashView,     setDashView]     = useState<"proxy" | "tasks" | "records">("proxy");
+
+  // IP Address (records) modal state
+  const [showAddRecord,        setShowAddRecord]        = useState(false);
+  const [recordsRefreshTrigger, setRecordsRefreshTrigger] = useState(0);
 
   const screenShare = useScreenShare(profile.id);
   const isWork      = screenShare.status === "active";
@@ -427,6 +434,39 @@ export default function EmployeeDashboard({ onLogout, profile }: EmployeeDashboa
                 </span>
               )}
               {dashView === "tasks" && (
+                <span style={{
+                  position: "absolute", right: 10,
+                  width: 5, height: 5, borderRadius: "50%",
+                  background: "#7c6cf8",
+                  boxShadow: "0 0 8px rgba(124,108,248,0.8)",
+                }} />
+              )}
+            </button>
+
+            {/* IP Address — same feature as admin portal */}
+            <button
+              onClick={() => setDashView("records")}
+              style={{
+                display: "flex", alignItems: "center", gap: 9,
+                padding: "9px 10px", borderRadius: 9, width: "100%",
+                background: dashView === "records" ? "linear-gradient(90deg, rgba(124,108,248,0.15), rgba(124,108,248,0.04))" : "transparent",
+                border: dashView === "records" ? "1px solid rgba(124,108,248,0.22)" : "1px solid transparent",
+                color: dashView === "records" ? "#a5a8ff" : "#4a526e",
+                fontSize: 12, fontWeight: dashView === "records" ? 600 : 400,
+                cursor: "pointer", fontFamily: "inherit", textAlign: "left" as const,
+                position: "relative" as const,
+                transition: "all 0.18s ease",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              <span>IP Address</span>
+              {dashView === "records" && (
                 <span style={{
                   position: "absolute", right: 10,
                   width: 5, height: 5, borderRadius: "50%",
@@ -1227,6 +1267,69 @@ export default function EmployeeDashboard({ onLogout, profile }: EmployeeDashboa
                 </div>
               )}
             </>
+            )}
+
+            {/* ══════════════ IP ADDRESS VIEW — same feature as admin portal ══════════════ */}
+            {dashView === "records" && (
+              <ThemeCtx.Provider value={{ theme: "dark", T: dark, toggle: () => {} }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap" as const, gap: 16 }}>
+                  <div>
+                    <h1 style={S.pageTitle}>IP Address</h1>
+                    <p style={S.pageSubtitle}>
+                      Add new IP addresses with fingerprint validation. Same workflow as the admin portal.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowAddRecord(true)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = "0.88";
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.boxShadow = "0 6px 20px rgba(142,22,22,0.36)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = "1";
+                      e.currentTarget.style.transform = "none";
+                      e.currentTarget.style.boxShadow = "0 4px 14px rgba(142,22,22,0.28)";
+                    }}
+                    style={{
+                      background:    "linear-gradient(135deg, #8e1616 0%, #6b1010 100%)",
+                      border:        "none",
+                      color:         "#fff",
+                      borderRadius:  10,
+                      padding:       "10px 20px",
+                      fontSize:      13,
+                      fontWeight:    600,
+                      cursor:        "pointer",
+                      fontFamily:    "inherit",
+                      flexShrink:    0,
+                      boxShadow:     "0 4px 14px rgba(142,22,22,0.28)",
+                      letterSpacing: 0.2,
+                      transition:    "all 0.18s cubic-bezier(0.16,1,0.3,1)",
+                    }}
+                  >
+                    + Add IP Address
+                  </button>
+                </div>
+
+                <div style={{
+                  background:   "rgba(13,16,34,0.65)",
+                  border:       "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 14,
+                  overflow:     "hidden",
+                  marginTop:    16,
+                  animation:    "fadeUp 0.28s ease both",
+                }}>
+                  <RecordsTable refreshTrigger={recordsRefreshTrigger} />
+                </div>
+
+                {showAddRecord && (
+                  <AddRecordModal
+                    onClose={() => setShowAddRecord(false)}
+                    onSaved={() => setRecordsRefreshTrigger((n) => n + 1)}
+                  />
+                )}
+              </ThemeCtx.Provider>
             )}
           </div>
         )}
